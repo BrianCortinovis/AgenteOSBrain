@@ -1,0 +1,237 @@
+[
+  {
+    "id": "zapier",
+    "category": "automation",
+    "name": "Zapier",
+    "icon": "zapier",
+    "description": "Collega e automatizza workflow tra migliaia di applicazioni con Zapier",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_key"],
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Zapier"
+        }
+      }
+    },
+    "actions": ["trigger_zap", "list_zaps", "manage_zaps"]
+  },
+  {
+    "id": "make",
+    "category": "automation",
+    "name": "Make (Integromat)",
+    "icon": "make",
+    "description": "Crea automazioni visive avanzate e scenari complessi con Make",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_token"],
+      "properties": {
+        "api_token": {
+          "type": "string",
+          "title": "API Token",
+          "description": "Token API di Make"
+        },
+        "base_url": {
+          "type": "string",
+          "title": "URL Base",
+          "description": "URL dell'istanza Make (es. eu1.make.com, us1.make.com)",
+          "default": "https://eu1.make.com"
+        }
+      }
+    },
+    "actions": ["trigger_scenario", "list_scenarios", "manage_scenarios", "get_execution_log"]
+  },
+  {
+    "id": "n8n",
+    "category": "automation",
+    "name": "n8n",
+    "icon": "n8n",
+    "description": "Piattaforma di automazione open source self-hosted per workflow personalizzati",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["base_url", "api_key"],
+      "properties": {
+        "base_url": {
+          "type": "string",
+          "title": "URL Base",
+          "description": "URL dell'istanza n8n (es. https://my-n8n.example.com)"
+        },
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di n8n"
+        }
+      }
+    },
+    "actions": ["trigger_workflow", "list_workflows", "manage_workflows", "get_executions"]
+  },
+  {
+    "id": "webhook",
+    "category": "automation",
+    "name": "Webhook",
+    "icon": "webhook",
+    "description": "Ricevi e invia notifiche HTTP tramite webhook personalizzati",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "title": "URL Webhook",
+          "description": "URL di destinazione del webhook",
+          "format": "uri"
+        },
+        "method": {
+          "type": "string",
+          "title": "Metodo HTTP",
+          "description": "Metodo HTTP da utilizzare",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+          "default": "POST"
+        },
+        "headers": {
+          "type": "object",
+          "title": "Headers personalizzati",
+          "description": "Headers HTTP aggiuntivi da inviare con la richiesta",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "auth_type": {
+          "type": "string",
+          "title": "Tipo di autenticazione",
+          "description": "Metodo di autenticazione per il webhook",
+          "enum": ["none", "bearer_token", "basic_auth", "api_key"],
+          "default": "none"
+        },
+        "auth_value": {
+          "type": "string",
+          "title": "Valore autenticazione",
+          "description": "Token, chiave API o credenziali per l'autenticazione",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["send_request", "receive_webhook", "test_connection"]
+  },
+  {
+    "id": "rest-api",
+    "category": "automation",
+    "name": "Generic REST API",
+    "icon": "api",
+    "description": "Connettiti a qualsiasi servizio REST API con configurazione personalizzata",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["base_url"],
+      "properties": {
+        "base_url": {
+          "type": "string",
+          "title": "URL base",
+          "description": "URL base dell'API (es. https://api.example.com/v1)",
+          "format": "uri"
+        },
+        "auth_type": {
+          "type": "string",
+          "title": "Tipo di autenticazione",
+          "description": "Metodo di autenticazione per l'API",
+          "enum": ["none", "bearer_token", "basic_auth", "api_key_header", "api_key_query", "oauth2"],
+          "default": "none"
+        },
+        "auth_value": {
+          "type": "string",
+          "title": "Valore autenticazione",
+          "description": "Token, chiave API o credenziali",
+          "format": "password"
+        },
+        "default_headers": {
+          "type": "object",
+          "title": "Headers predefiniti",
+          "description": "Headers HTTP da includere in ogni richiesta",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "timeout_ms": {
+          "type": "number",
+          "title": "Timeout (ms)",
+          "description": "Timeout massimo per le richieste in millisecondi",
+          "default": 30000
+        }
+      }
+    },
+    "actions": ["get", "post", "put", "patch", "delete", "head", "options"]
+  },
+  {
+    "id": "ifttt",
+    "category": "automation",
+    "name": "IFTTT",
+    "icon": "ifttt",
+    "description": "Automatizza azioni tra servizi con IFTTT (If This Then That)",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["webhook_key"],
+      "properties": {
+        "webhook_key": {
+          "type": "string",
+          "title": "Webhook Key",
+          "description": "Chiave webhook IFTTT (dalla sezione Webhooks del tuo account)"
+        }
+      }
+    },
+    "actions": ["trigger_applet", "list_applets", "manage_applets"]
+  },
+  {
+    "id": "cron-job",
+    "category": "automation",
+    "name": "Cron Job Interno",
+    "icon": "clock",
+    "description": "Esegui task schedulati internamente con espressioni cron",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "properties": {
+        "cron_expression": { "type": "string", "title": "Espressione Cron", "default": "0 * * * *" }
+      }
+    },
+    "actions": ["schedule", "run_now", "pause", "resume", "list_jobs"]
+  },
+  {
+    "id": "graphql-api",
+    "category": "automation",
+    "name": "GraphQL API",
+    "icon": "graphql",
+    "description": "Connettiti a endpoint GraphQL per query e mutazioni",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["endpoint"],
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "title": "Endpoint",
+          "description": "URL dell'endpoint GraphQL",
+          "format": "uri"
+        },
+        "auth_header": {
+          "type": "string",
+          "title": "Header di autenticazione",
+          "description": "Nome dell'header per l'autenticazione (es. Authorization, X-API-Key)"
+        },
+        "auth_value": {
+          "type": "string",
+          "title": "Valore autenticazione",
+          "description": "Valore dell'header di autenticazione (es. Bearer token)",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["query", "mutation", "subscription"]
+  }
+]

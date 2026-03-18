@@ -1,0 +1,354 @@
+[
+  {
+    "id": "notion",
+    "category": "productivity",
+    "name": "Notion",
+    "icon": "notion",
+    "description": "Gestisci pagine, database e contenuti nel tuo workspace Notion",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["integration_token"],
+      "properties": {
+        "integration_token": {
+          "type": "string",
+          "title": "Integration Token",
+          "description": "Token dell'integrazione Notion (secret_...)",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_page", "update_page", "query_database", "create_database", "search", "list_pages"]
+  },
+  {
+    "id": "airtable",
+    "category": "productivity",
+    "name": "Airtable",
+    "icon": "airtable",
+    "description": "Gestisci basi dati flessibili e collabora con il team tramite Airtable",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["personal_access_token"],
+      "properties": {
+        "personal_access_token": {
+          "type": "string",
+          "title": "Personal Access Token",
+          "description": "Token di accesso personale Airtable",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["list_records", "create_record", "update_record", "delete_record", "list_bases", "list_tables"]
+  },
+  {
+    "id": "trello",
+    "category": "productivity",
+    "name": "Trello",
+    "icon": "trello",
+    "description": "Organizza progetti con bacheche, liste e schede Trello",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_key", "token"],
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Trello"
+        },
+        "token": {
+          "type": "string",
+          "title": "Token",
+          "description": "Token di autorizzazione Trello"
+        }
+      }
+    },
+    "actions": ["create_card", "move_card", "list_boards", "list_cards", "add_comment", "manage_labels"]
+  },
+  {
+    "id": "asana",
+    "category": "productivity",
+    "name": "Asana",
+    "icon": "asana",
+    "description": "Gestisci progetti, attivit\u00e0 e team con Asana",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["personal_access_token"],
+      "properties": {
+        "personal_access_token": {
+          "type": "string",
+          "title": "Personal Access Token",
+          "description": "Token di accesso personale Asana",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_task", "update_task", "list_projects", "list_tasks", "add_comment", "assign_task"]
+  },
+  {
+    "id": "clickup",
+    "category": "productivity",
+    "name": "ClickUp",
+    "icon": "clickup",
+    "description": "Piattaforma di produttivit\u00e0 all-in-one per gestire attivit\u00e0 e progetti",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_token"],
+      "properties": {
+        "api_token": {
+          "type": "string",
+          "title": "API Token",
+          "description": "Token API personale di ClickUp",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_task", "update_task", "list_spaces", "list_tasks", "add_comment", "manage_tags"]
+  },
+  {
+    "id": "monday",
+    "category": "productivity",
+    "name": "Monday.com",
+    "icon": "monday",
+    "description": "Gestisci workflow e progetti con la piattaforma Monday.com",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_token"],
+      "properties": {
+        "api_token": {
+          "type": "string",
+          "title": "API Token",
+          "description": "Token API di Monday.com",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_item", "update_item", "list_boards", "list_items", "add_update", "manage_columns"]
+  },
+  {
+    "id": "jira",
+    "category": "productivity",
+    "name": "Jira",
+    "icon": "jira",
+    "description": "Traccia issue, gestisci sprint e progetti agile con Atlassian Jira",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["email", "api_token", "domain"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "description": "Indirizzo email dell'account Atlassian"
+        },
+        "api_token": {
+          "type": "string",
+          "title": "API Token",
+          "description": "Token API di Atlassian",
+          "format": "password"
+        },
+        "domain": {
+          "type": "string",
+          "title": "Dominio",
+          "description": "Dominio Atlassian (es. mycompany.atlassian.net)"
+        }
+      }
+    },
+    "actions": ["create_issue", "update_issue", "list_projects", "search_issues", "manage_sprints", "add_comment"]
+  },
+  {
+    "id": "confluence",
+    "category": "productivity",
+    "name": "Confluence",
+    "icon": "confluence",
+    "description": "Crea e gestisci documentazione e knowledge base con Atlassian Confluence",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["email", "api_token", "domain"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "Email",
+          "description": "Indirizzo email dell'account Atlassian"
+        },
+        "api_token": {
+          "type": "string",
+          "title": "API Token",
+          "description": "Token API di Atlassian",
+          "format": "password"
+        },
+        "domain": {
+          "type": "string",
+          "title": "Dominio",
+          "description": "Dominio Atlassian (es. mycompany.atlassian.net)"
+        }
+      }
+    },
+    "actions": ["create_page", "update_page", "search_content", "list_spaces", "add_comment", "get_page"]
+  },
+  {
+    "id": "google-sheets",
+    "category": "productivity",
+    "name": "Google Sheets",
+    "icon": "google-sheets",
+    "description": "Crea, leggi e modifica fogli di calcolo Google Sheets",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Google (per accesso in sola lettura a fogli pubblici)"
+        },
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token OAuth2 per accesso completo a Google Sheets"
+        },
+        "spreadsheet_id": {
+          "type": "string",
+          "title": "Spreadsheet ID",
+          "description": "ID del foglio di calcolo predefinito (opzionale)"
+        }
+      }
+    },
+    "actions": ["read_sheet", "write_sheet", "create_spreadsheet", "list_sheets", "append_rows", "clear_range"]
+  },
+  {
+    "id": "google-docs",
+    "category": "productivity",
+    "name": "Google Docs",
+    "icon": "google-docs",
+    "description": "Crea e modifica documenti su Google Docs",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token OAuth2 per accedere a Google Docs"
+        }
+      }
+    },
+    "actions": ["create_document", "read_document", "update_document", "list_documents", "export_pdf"]
+  },
+  {
+    "id": "google-slides",
+    "category": "productivity",
+    "name": "Google Slides",
+    "icon": "google-slides",
+    "description": "Crea e gestisci presentazioni su Google Slides",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token OAuth2 per accedere a Google Slides"
+        }
+      }
+    },
+    "actions": ["create_presentation", "add_slide", "update_slide", "list_presentations", "export_pdf"]
+  },
+  {
+    "id": "google-calendar",
+    "category": "productivity",
+    "name": "Google Calendar",
+    "icon": "google-calendar",
+    "description": "Gestisci eventi e calendari con Google Calendar",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Google (per accesso in sola lettura a calendari pubblici)"
+        },
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token OAuth2 per accesso completo a Google Calendar"
+        }
+      }
+    },
+    "actions": ["list_events", "create_event", "update_event", "delete_event", "list_calendars", "check_availability"]
+  },
+  {
+    "id": "linear",
+    "category": "productivity",
+    "name": "Linear",
+    "icon": "linear",
+    "description": "Gestisci issue e progetti con Linear",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_key"],
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Linear",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_issue", "update_issue", "list_issues", "list_projects", "search", "manage_cycles"]
+  },
+  {
+    "id": "basecamp",
+    "category": "productivity",
+    "name": "Basecamp",
+    "icon": "basecamp",
+    "description": "Gestisci progetti e comunicazioni con Basecamp",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token", "account_id"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token OAuth2 per accedere a Basecamp"
+        },
+        "account_id": {
+          "type": "string",
+          "title": "Account ID",
+          "description": "ID dell'account Basecamp"
+        }
+      }
+    },
+    "actions": ["create_todo", "list_projects", "post_message", "upload_file"]
+  },
+  {
+    "id": "todoist",
+    "category": "productivity",
+    "name": "Todoist",
+    "icon": "todoist",
+    "description": "Gestisci attivit\u00e0 e progetti con Todoist",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_token"],
+      "properties": {
+        "api_token": {
+          "type": "string",
+          "title": "API Token",
+          "description": "Token API di Todoist",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_task", "list_tasks", "update_task", "complete_task", "list_projects"]
+  }
+]

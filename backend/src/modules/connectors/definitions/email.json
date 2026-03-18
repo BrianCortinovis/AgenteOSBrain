@@ -1,0 +1,108 @@
+[
+  {
+    "id": "gmail",
+    "category": "email",
+    "name": "Gmail",
+    "icon": "gmail",
+    "description": "Invia, ricevi e gestisci email tramite Gmail API",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["email", "app_password"],
+      "properties": {
+        "email": {
+          "type": "string",
+          "title": "Indirizzo Email",
+          "description": "Il tuo indirizzo Gmail"
+        },
+        "app_password": {
+          "type": "string",
+          "title": "App Password",
+          "description": "Password per le app di Google (genera da account Google > Sicurezza)",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["send_email", "read_emails", "search_emails", "manage_labels", "create_draft", "manage_filters"]
+  },
+  {
+    "id": "smtp",
+    "category": "email",
+    "name": "SMTP",
+    "icon": "email",
+    "description": "Invia email tramite qualsiasi server SMTP compatibile",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["host", "port", "username", "password"],
+      "properties": {
+        "host": {
+          "type": "string",
+          "title": "Server SMTP",
+          "description": "Indirizzo del server SMTP (es. smtp.gmail.com)"
+        },
+        "port": {
+          "type": "number",
+          "title": "Porta",
+          "description": "Porta del server SMTP",
+          "default": 587
+        },
+        "secure": {
+          "type": "boolean",
+          "title": "SSL/TLS",
+          "description": "Usa connessione sicura SSL/TLS",
+          "default": false
+        },
+        "username": {
+          "type": "string",
+          "title": "Utente",
+          "description": "Nome utente per l'autenticazione SMTP"
+        },
+        "password": {
+          "type": "string",
+          "title": "Password",
+          "description": "Password per l'autenticazione SMTP",
+          "format": "password"
+        },
+        "from_email": {
+          "type": "string",
+          "title": "Email mittente",
+          "description": "Indirizzo email mittente predefinito"
+        }
+      }
+    },
+    "actions": ["send_email", "send_html_email", "send_with_attachments", "verify_connection"]
+  },
+  {
+    "id": "outlook",
+    "category": "email",
+    "name": "Microsoft Outlook",
+    "icon": "outlook",
+    "description": "Gestisci email, calendario e contatti tramite Microsoft Outlook / Exchange",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["client_id", "client_secret"],
+      "properties": {
+        "client_id": {
+          "type": "string",
+          "title": "Client ID",
+          "description": "ID dell'applicazione registrata su Azure AD per Microsoft Graph"
+        },
+        "client_secret": {
+          "type": "string",
+          "title": "Client Secret",
+          "description": "Secret dell'applicazione Azure AD",
+          "format": "password"
+        },
+        "tenant_id": {
+          "type": "string",
+          "title": "Tenant ID",
+          "description": "ID del tenant Azure AD (predefinito: common per account multi-tenant)",
+          "default": "common"
+        }
+      }
+    },
+    "actions": ["send_email", "read_emails", "search_emails", "manage_folders", "create_event", "manage_contacts"]
+  }
+]

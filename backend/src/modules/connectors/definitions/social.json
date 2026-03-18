@@ -1,0 +1,238 @@
+[
+  {
+    "id": "facebook-pages",
+    "category": "social",
+    "name": "Meta / Facebook Pages",
+    "icon": "facebook",
+    "description": "Gestisci pagine Facebook, pubblica contenuti e analizza le performance",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["page_access_token", "page_id"],
+      "properties": {
+        "page_access_token": {
+          "type": "string",
+          "title": "Page Access Token",
+          "description": "Token di accesso della pagina Facebook generato tramite Meta Developer Portal",
+          "format": "password"
+        },
+        "page_id": {
+          "type": "string",
+          "title": "Page ID",
+          "description": "ID numerico della pagina Facebook"
+        }
+      }
+    },
+    "actions": ["create_post", "schedule_post", "get_insights", "manage_comments", "get_page_info", "upload_media"]
+  },
+  {
+    "id": "instagram",
+    "category": "social",
+    "name": "Instagram",
+    "icon": "instagram",
+    "description": "Pubblica contenuti su Instagram, gestisci stories e analizza metriche",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token di accesso Instagram ottenuto tramite Meta Graph API",
+          "format": "password"
+        },
+        "business_account_id": {
+          "type": "string",
+          "title": "Business Account ID",
+          "description": "ID dell'account business Instagram (opzionale, rilevato automaticamente)"
+        }
+      }
+    },
+    "actions": ["create_post", "create_story", "get_insights", "manage_comments", "get_profile_info", "schedule_post"]
+  },
+  {
+    "id": "linkedin-pages",
+    "category": "social",
+    "name": "LinkedIn Pages",
+    "icon": "linkedin",
+    "description": "Gestisci la pagina aziendale LinkedIn, pubblica aggiornamenti e analizza dati",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token di accesso OAuth 2.0 di LinkedIn",
+          "format": "password"
+        },
+        "organization_id": {
+          "type": "string",
+          "title": "Organization ID",
+          "description": "ID dell'organizzazione LinkedIn (opzionale)"
+        }
+      }
+    },
+    "actions": ["create_post", "get_analytics", "manage_comments", "get_followers", "share_article"]
+  },
+  {
+    "id": "x-twitter",
+    "category": "social",
+    "name": "X / Twitter",
+    "icon": "x-twitter",
+    "description": "Pubblica tweet, gestisci interazioni e monitora menzioni su X",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["bearer_token"],
+      "properties": {
+        "bearer_token": {
+          "type": "string",
+          "title": "Bearer Token",
+          "description": "Bearer Token dell'app X/Twitter per autenticazione API v2",
+          "format": "password"
+        },
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "API Key (Consumer Key) per operazioni aggiuntive (opzionale)"
+        },
+        "api_secret": {
+          "type": "string",
+          "title": "API Secret",
+          "description": "API Secret (Consumer Secret) per operazioni aggiuntive (opzionale)",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_tweet", "search_tweets", "get_mentions", "manage_likes", "get_analytics", "schedule_tweet"]
+  },
+  {
+    "id": "youtube",
+    "category": "social",
+    "name": "YouTube",
+    "icon": "youtube",
+    "description": "Carica video, gestisci il canale YouTube e analizza le statistiche",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_key"],
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di YouTube Data API v3 dalla Google Cloud Console",
+          "format": "password"
+        },
+        "channel_id": {
+          "type": "string",
+          "title": "Channel ID",
+          "description": "ID del canale YouTube (opzionale, rilevato automaticamente con OAuth)"
+        }
+      }
+    },
+    "actions": ["upload_video", "list_videos", "get_analytics", "manage_comments", "manage_playlists", "get_channel_info"]
+  },
+  {
+    "id": "tiktok",
+    "category": "social",
+    "name": "TikTok",
+    "icon": "tiktok",
+    "description": "Pubblica video su TikTok e monitora le performance dei contenuti",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token di accesso TikTok ottenuto tramite TikTok for Developers",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["upload_video", "get_analytics", "get_profile_info", "list_videos"]
+  },
+  {
+    "id": "buffer",
+    "category": "social",
+    "name": "Buffer",
+    "icon": "buffer",
+    "description": "Pianifica e gestisci pubblicazioni su più social network tramite Buffer",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token di accesso Buffer generato dalle impostazioni dell'account",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_post", "schedule_post", "list_scheduled", "get_analytics", "manage_channels"]
+  },
+  {
+    "id": "pinterest",
+    "category": "social",
+    "name": "Pinterest",
+    "icon": "pinterest",
+    "description": "Gestisci pin e bacheche Pinterest per marketing visuale",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token di accesso Pinterest API v5",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_pin", "list_boards", "get_analytics", "search_pins"]
+  },
+  {
+    "id": "reddit",
+    "category": "social",
+    "name": "Reddit",
+    "icon": "reddit",
+    "description": "Monitora subreddit e pubblica contenuti su Reddit",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["client_id", "client_secret", "username", "password"],
+      "properties": {
+        "client_id": {
+          "type": "string",
+          "title": "Client ID",
+          "description": "Client ID dell'app Reddit registrata su reddit.com/prefs/apps"
+        },
+        "client_secret": {
+          "type": "string",
+          "title": "Client Secret",
+          "description": "Client Secret dell'app Reddit",
+          "format": "password"
+        },
+        "username": {
+          "type": "string",
+          "title": "Username",
+          "description": "Nome utente Reddit per l'autenticazione"
+        },
+        "password": {
+          "type": "string",
+          "title": "Password",
+          "description": "Password dell'account Reddit",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["create_post", "search_posts", "get_comments", "monitor_subreddit"]
+  }
+]

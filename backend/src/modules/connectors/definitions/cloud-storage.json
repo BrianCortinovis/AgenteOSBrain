@@ -1,0 +1,297 @@
+[
+  {
+    "id": "google-drive",
+    "category": "cloud-storage",
+    "name": "Google Drive",
+    "icon": "google-drive",
+    "description": "Accedi e gestisci file e cartelle su Google Drive",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token / API Key",
+          "description": "Token OAuth2 o chiave API per accedere a Google Drive",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["list_files", "upload_file", "download_file", "create_folder", "share_file", "search_files"]
+  },
+  {
+    "id": "dropbox",
+    "category": "cloud-storage",
+    "name": "Dropbox",
+    "icon": "dropbox",
+    "description": "Sincronizza e gestisci file tramite Dropbox",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token OAuth2 per accedere a Dropbox"
+        }
+      }
+    },
+    "actions": ["list_files", "upload_file", "download_file", "create_folder", "share_file", "search_files"]
+  },
+  {
+    "id": "onedrive",
+    "category": "cloud-storage",
+    "name": "OneDrive",
+    "icon": "onedrive",
+    "description": "Integrazione con Microsoft OneDrive per archiviazione e condivisione file",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token OAuth2 per accedere a Microsoft OneDrive"
+        }
+      }
+    },
+    "actions": ["list_files", "upload_file", "download_file", "create_folder", "share_file", "search_files"]
+  },
+  {
+    "id": "box",
+    "category": "cloud-storage",
+    "name": "Box",
+    "icon": "box",
+    "description": "Gestisci contenuti aziendali in modo sicuro tramite Box",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_token"],
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token OAuth2 per accedere a Box"
+        }
+      }
+    },
+    "actions": ["list_files", "upload_file", "download_file", "create_folder", "share_file", "search_files"]
+  },
+  {
+    "id": "s3",
+    "category": "cloud-storage",
+    "name": "Amazon S3",
+    "icon": "aws-s3",
+    "description": "Archiviazione oggetti scalabile tramite Amazon S3",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["access_key_id", "secret_access_key"],
+      "properties": {
+        "access_key_id": {
+          "type": "string",
+          "title": "Access Key ID",
+          "description": "Chiave di accesso AWS (inizia con AKIA)"
+        },
+        "secret_access_key": {
+          "type": "string",
+          "title": "Secret Access Key",
+          "description": "Chiave segreta AWS associata all'Access Key ID",
+          "format": "password"
+        },
+        "region": {
+          "type": "string",
+          "title": "Regione",
+          "description": "Regione AWS (es. us-east-1, eu-west-1)",
+          "default": "us-east-1"
+        },
+        "bucket": {
+          "type": "string",
+          "title": "Bucket",
+          "description": "Nome del bucket S3 (opzionale)"
+        }
+      }
+    },
+    "actions": ["list_buckets", "list_objects", "upload_object", "download_object", "delete_object", "generate_presigned_url"]
+  },
+  {
+    "id": "gcs",
+    "category": "cloud-storage",
+    "name": "Google Cloud Storage",
+    "icon": "google-cloud-storage",
+    "description": "Archiviazione oggetti su Google Cloud Platform",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["service_account_json"],
+      "properties": {
+        "service_account_json": {
+          "type": "string",
+          "title": "Service Account JSON",
+          "description": "Contenuto JSON del file di credenziali del service account Google Cloud",
+          "format": "multiline"
+        },
+        "bucket": {
+          "type": "string",
+          "title": "Bucket",
+          "description": "Nome del bucket GCS (opzionale)"
+        }
+      }
+    },
+    "actions": ["list_buckets", "list_objects", "upload_object", "download_object", "delete_object", "generate_signed_url"]
+  },
+  {
+    "id": "cloudinary",
+    "category": "cloud-storage",
+    "name": "Cloudinary",
+    "icon": "cloudinary",
+    "description": "Gestione e ottimizzazione di immagini e video tramite Cloudinary",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["cloud_name", "api_key", "api_secret"],
+      "properties": {
+        "cloud_name": {
+          "type": "string",
+          "title": "Cloud Name",
+          "description": "Nome del tuo cloud Cloudinary"
+        },
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Cloudinary"
+        },
+        "api_secret": {
+          "type": "string",
+          "title": "API Secret",
+          "description": "Secret API di Cloudinary",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["upload_media", "transform_image", "list_assets", "delete_asset", "generate_url"]
+  },
+  {
+    "id": "local-folder",
+    "category": "cloud-storage",
+    "name": "Cartella Locale",
+    "icon": "folder",
+    "description": "Accedi a file e cartelle sul filesystem locale del server",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["base_path"],
+      "properties": {
+        "base_path": {
+          "type": "string",
+          "title": "Percorso base",
+          "description": "Percorso assoluto della cartella locale da utilizzare"
+        },
+        "allowed_extensions": {
+          "type": "array",
+          "title": "Estensioni consentite",
+          "description": "Lista di estensioni file consentite (es. .pdf, .txt). Vuoto per consentire tutto.",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "max_file_size_mb": {
+          "type": "number",
+          "title": "Dimensione massima file (MB)",
+          "description": "Dimensione massima per singolo file in megabyte",
+          "default": 100
+        }
+      }
+    },
+    "actions": ["list_files", "read_file", "write_file", "delete_file", "create_folder", "move_file", "copy_file"]
+  },
+  {
+    "id": "nas-smb",
+    "category": "cloud-storage",
+    "name": "NAS / SMB",
+    "icon": "nas",
+    "description": "Connettiti a condivisioni di rete NAS tramite protocollo SMB/CIFS",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["host", "share"],
+      "properties": {
+        "host": {
+          "type": "string",
+          "title": "Host",
+          "description": "Indirizzo IP o hostname del NAS"
+        },
+        "share": {
+          "type": "string",
+          "title": "Condivisione",
+          "description": "Nome della condivisione SMB"
+        },
+        "username": {
+          "type": "string",
+          "title": "Utente",
+          "description": "Nome utente per l'autenticazione (opzionale)"
+        },
+        "password": {
+          "type": "string",
+          "title": "Password",
+          "description": "Password per l'autenticazione (opzionale)",
+          "format": "password"
+        },
+        "domain": {
+          "type": "string",
+          "title": "Dominio",
+          "description": "Dominio di rete (opzionale)"
+        }
+      }
+    },
+    "actions": ["list_files", "upload_file", "download_file", "create_folder", "delete_file"]
+  },
+  {
+    "id": "ftp-sftp",
+    "category": "cloud-storage",
+    "name": "FTP / SFTP",
+    "icon": "ftp",
+    "description": "Trasferisci file tramite protocollo FTP o SFTP sicuro",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["host", "username", "password"],
+      "properties": {
+        "host": {
+          "type": "string",
+          "title": "Host",
+          "description": "Indirizzo del server FTP/SFTP"
+        },
+        "port": {
+          "type": "number",
+          "title": "Porta",
+          "description": "Porta del server",
+          "default": 21
+        },
+        "username": {
+          "type": "string",
+          "title": "Utente",
+          "description": "Nome utente per la connessione"
+        },
+        "password": {
+          "type": "string",
+          "title": "Password",
+          "description": "Password per la connessione",
+          "format": "password"
+        },
+        "protocol": {
+          "type": "string",
+          "title": "Protocollo",
+          "description": "Protocollo di trasferimento file",
+          "enum": ["ftp", "sftp"],
+          "default": "sftp"
+        }
+      }
+    },
+    "actions": ["list_files", "upload_file", "download_file", "create_folder", "delete_file"]
+  }
+]

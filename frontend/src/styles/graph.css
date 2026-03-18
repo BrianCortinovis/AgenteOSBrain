@@ -1,0 +1,191 @@
+.react-flow__background {
+  background: var(--bg-primary) !important;
+}
+
+.react-flow__minimap {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+}
+
+.react-flow__controls {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border-primary) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+.react-flow__controls button {
+  background: var(--bg-secondary) !important;
+  border-color: var(--border-primary) !important;
+  color: var(--text-secondary) !important;
+  fill: var(--text-secondary) !important;
+}
+.react-flow__controls button:hover {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+}
+
+.react-flow__edge-path { stroke: var(--border-secondary); stroke-width: 2; }
+.react-flow__edge.selected .react-flow__edge-path { stroke: var(--accent-blue); }
+.react-flow__connection-line { stroke: var(--accent-blue); stroke-width: 2; }
+.react-flow__handle {
+  width: 10px !important;
+  height: 10px !important;
+  background: var(--border-secondary) !important;
+  border: 2px solid var(--bg-card) !important;
+}
+.react-flow__handle:hover {
+  background: var(--accent-blue) !important;
+}
+
+.custom-node {
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  min-width: 200px;
+  max-width: 260px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+.custom-node::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+  z-index: 0;
+}
+.custom-node > * {
+  position: relative;
+  z-index: 1;
+}
+.custom-node:hover {
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-md);
+}
+.custom-node.selected {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 1px var(--accent-blue), var(--shadow-md);
+}
+
+.custom-node-body {
+  padding: 10px 12px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+.custom-node-body .node-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.custom-node-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  border-top: 1px solid var(--border-primary);
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Running node glow animation */
+.custom-node.node-running {
+  border-color: var(--accent-amber) !important;
+  box-shadow:
+    0 0 0 1px rgba(251, 191, 36, 0.8),
+    0 0 26px rgba(245, 158, 11, 0.42),
+    0 0 56px rgba(245, 158, 11, 0.22),
+    inset 0 0 24px rgba(251, 191, 36, 0.14);
+  animation: nodeGlow 1.15s ease-in-out infinite;
+}
+.custom-node.node-running::before {
+  opacity: 1;
+  background:
+    radial-gradient(circle at 50% 22%, rgba(255, 245, 200, 0.32), rgba(255, 245, 200, 0) 56%),
+    linear-gradient(180deg, rgba(251, 191, 36, 0.18), rgba(245, 158, 11, 0.05) 46%, rgba(0, 0, 0, 0) 100%);
+}
+.custom-node.node-running .custom-node-body,
+.custom-node.node-running .custom-node-footer {
+  background:
+    linear-gradient(180deg, rgba(251, 191, 36, 0.11), rgba(245, 158, 11, 0.03)),
+    var(--bg-card);
+}
+.custom-node.node-running .node-label {
+  color: #fff6d8;
+  text-shadow: 0 0 14px rgba(255, 210, 84, 0.35);
+}
+.custom-node.node-running .status-dot {
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.22), 0 0 16px rgba(251, 191, 36, 0.58);
+}
+.custom-node.node-running .react-flow__handle {
+  background: #fbbf24 !important;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.55);
+}
+.custom-node.collapsed.node-running {
+  background:
+    radial-gradient(circle at 50% 8%, rgba(255, 244, 194, 0.28), rgba(255, 244, 194, 0) 58%),
+    linear-gradient(180deg, rgba(251, 191, 36, 0.22), rgba(245, 158, 11, 0.1)),
+    var(--bg-card);
+}
+@keyframes nodeGlow {
+  0%, 100% {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.72),
+      0 0 20px rgba(245, 158, 11, 0.34),
+      0 0 42px rgba(245, 158, 11, 0.16),
+      inset 0 0 18px rgba(251, 191, 36, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px rgba(251, 191, 36, 0.95),
+      0 0 34px rgba(245, 158, 11, 0.62),
+      0 0 78px rgba(245, 158, 11, 0.34),
+      inset 0 0 28px rgba(251, 191, 36, 0.22);
+  }
+}
+
+/* Completed node flash */
+.custom-node.node-completed {
+  border-color: var(--accent-green) !important;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+/* Blocked/error node */
+.custom-node.node-blocked {
+  border-color: var(--accent-red) !important;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.3);
+}
+
+/* Collapsed node */
+.custom-node.collapsed {
+  min-width: auto;
+  border-top-width: 2px;
+  border-top-style: solid;
+}
+
+.running-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff6d8;
+  background: rgba(245, 158, 11, 0.24);
+  border: 1px solid rgba(251, 191, 36, 0.55);
+  box-shadow: 0 0 18px rgba(251, 191, 36, 0.25);
+}
+
+.running-chip.collapsed {
+  padding: 1px 6px;
+  font-size: 8px;
+}

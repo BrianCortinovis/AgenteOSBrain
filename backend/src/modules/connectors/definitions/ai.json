@@ -1,0 +1,143 @@
+[
+  {
+    "id": "openai",
+    "category": "ai",
+    "name": "OpenAI",
+    "icon": "openai",
+    "description": "Integrazione con i modelli GPT di OpenAI per generazione testo, immagini e embeddings",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_key"],
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "La tua chiave API di OpenAI",
+          "format": "password"
+        },
+        "organization_id": {
+          "type": "string",
+          "title": "Organization ID",
+          "description": "ID organizzazione OpenAI (opzionale)"
+        },
+        "default_model": {
+          "type": "string",
+          "title": "Modello predefinito",
+          "description": "Modello da utilizzare per le richieste",
+          "enum": ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-3.5-turbo"],
+          "default": "gpt-4o"
+        }
+      }
+    },
+    "actions": ["chat_completion", "text_generation", "image_generation", "embeddings", "text_to_speech", "speech_to_text"]
+  },
+  {
+    "id": "gemini",
+    "category": "ai",
+    "name": "Google Gemini",
+    "icon": "gemini",
+    "description": "Integrazione con i modelli Gemini di Google per generazione testo e contenuti multimodali",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_key"],
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "La tua chiave API di Google AI Studio",
+          "format": "password"
+        },
+        "default_model": {
+          "type": "string",
+          "title": "Modello predefinito",
+          "description": "Modello Gemini da utilizzare",
+          "enum": ["gemini-2.0-flash", "gemini-2.0-pro", "gemini-1.5-flash", "gemini-1.5-pro"],
+          "default": "gemini-2.0-flash"
+        }
+      }
+    },
+    "actions": ["chat_completion", "text_generation", "multimodal_generation", "embeddings"]
+  },
+  {
+    "id": "anthropic",
+    "category": "ai",
+    "name": "Anthropic Claude",
+    "icon": "anthropic",
+    "description": "Integrazione con i modelli Claude di Anthropic per generazione testo e analisi documenti",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_key"],
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "La tua chiave API di Anthropic",
+          "format": "password"
+        },
+        "default_model": {
+          "type": "string",
+          "title": "Modello predefinito",
+          "description": "Modello Claude da utilizzare",
+          "enum": ["claude-sonnet-4-20250514", "claude-opus-4-20250514", "claude-3-5-haiku-20241022"],
+          "default": "claude-sonnet-4-20250514"
+        }
+      }
+    },
+    "actions": ["chat_completion", "text_generation", "document_analysis", "code_generation"]
+  },
+  {
+    "id": "ollama",
+    "category": "ai",
+    "name": "Ollama",
+    "icon": "ollama",
+    "description": "Esegui modelli AI in locale tramite Ollama senza dipendere da servizi cloud",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["base_url"],
+      "properties": {
+        "base_url": {
+          "type": "string",
+          "title": "URL del server",
+          "description": "Indirizzo del server Ollama",
+          "default": "http://localhost:11434"
+        },
+        "default_model": {
+          "type": "string",
+          "title": "Modello predefinito",
+          "description": "Nome del modello Ollama da utilizzare (es. llama3, mistral, codellama)"
+        }
+      }
+    },
+    "actions": ["chat_completion", "text_generation", "embeddings", "list_models", "pull_model"]
+  },
+  {
+    "id": "huggingface",
+    "category": "ai",
+    "name": "Hugging Face",
+    "icon": "huggingface",
+    "description": "Accesso a migliaia di modelli open-source tramite la piattaforma Hugging Face",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_token"],
+      "properties": {
+        "api_token": {
+          "type": "string",
+          "title": "API Token",
+          "description": "Token API di Hugging Face",
+          "format": "password"
+        },
+        "model_id": {
+          "type": "string",
+          "title": "Model ID",
+          "description": "ID del modello da utilizzare (opzionale, es. meta-llama/Llama-2-7b)"
+        }
+      }
+    },
+    "actions": ["inference", "text_generation", "text_classification", "image_classification", "embeddings"]
+  }
+]

@@ -1,0 +1,31 @@
+# Deploy su Fly.io:
+#   fly launch
+#   fly secrets set OPENAI_API_KEY=sk-... ANTHROPIC_API_KEY=sk-ant-...
+#   fly deploy
+
+app = "agenteos-brain"
+primary_region = "fra"  # Frankfurt (Europa)
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "43101"
+  NODE_ENV = "production"
+
+[http_service]
+  internal_port = 43101
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 100
+    soft_limit = 80
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512

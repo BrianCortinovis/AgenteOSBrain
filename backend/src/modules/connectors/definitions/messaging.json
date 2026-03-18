@@ -1,0 +1,163 @@
+[
+  {
+    "id": "whatsapp",
+    "category": "messaging",
+    "name": "WhatsApp",
+    "icon": "whatsapp",
+    "description": "Invia e ricevi messaggi tramite WhatsApp Business API",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["phone_number_id", "access_token"],
+      "properties": {
+        "phone_number_id": {
+          "type": "string",
+          "title": "Phone Number ID",
+          "description": "ID del numero di telefono WhatsApp Business dalla dashboard Meta"
+        },
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token di accesso permanente per WhatsApp Business API",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["send_message", "send_template", "send_media", "receive_message", "manage_contacts", "get_message_status"]
+  },
+  {
+    "id": "telegram",
+    "category": "messaging",
+    "name": "Telegram",
+    "icon": "telegram",
+    "description": "Crea bot e invia messaggi tramite l'API di Telegram",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["bot_token"],
+      "properties": {
+        "bot_token": {
+          "type": "string",
+          "title": "Bot Token",
+          "description": "Token del bot ottenuto da @BotFather",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["send_message", "send_media", "receive_message", "create_bot", "manage_commands", "inline_keyboard"]
+  },
+  {
+    "id": "slack",
+    "category": "messaging",
+    "name": "Slack",
+    "icon": "slack",
+    "description": "Integrazione con Slack per messaggi, canali e automazioni del workspace",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["bot_token"],
+      "properties": {
+        "bot_token": {
+          "type": "string",
+          "title": "Bot Token",
+          "description": "Token del bot Slack (xoxb-...)",
+          "format": "password"
+        },
+        "default_channel": {
+          "type": "string",
+          "title": "Canale predefinito",
+          "description": "Canale predefinito per i messaggi (es. #general)"
+        }
+      }
+    },
+    "actions": ["send_message", "list_channels", "create_channel", "upload_file", "add_reaction", "manage_users"]
+  },
+  {
+    "id": "discord",
+    "category": "messaging",
+    "name": "Discord",
+    "icon": "discord",
+    "description": "Gestisci server Discord, invia messaggi e crea bot",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["bot_token"],
+      "properties": {
+        "bot_token": {
+          "type": "string",
+          "title": "Bot Token",
+          "description": "Token del bot Discord dal Developer Portal",
+          "format": "password"
+        },
+        "guild_id": {
+          "type": "string",
+          "title": "Guild ID",
+          "description": "ID del server Discord (opzionale, per limitare a un server specifico)"
+        }
+      }
+    },
+    "actions": ["send_message", "list_channels", "create_channel", "manage_roles", "add_reaction", "manage_members"]
+  },
+  {
+    "id": "microsoft-teams",
+    "category": "messaging",
+    "name": "Microsoft Teams",
+    "icon": "microsoft-teams",
+    "description": "Collabora tramite Microsoft Teams con messaggi, canali e riunioni",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["tenant_id", "client_id", "client_secret"],
+      "properties": {
+        "tenant_id": {
+          "type": "string",
+          "title": "Tenant ID",
+          "description": "ID del tenant Azure Active Directory"
+        },
+        "client_id": {
+          "type": "string",
+          "title": "Client ID",
+          "description": "ID dell'applicazione registrata su Azure AD"
+        },
+        "client_secret": {
+          "type": "string",
+          "title": "Client Secret",
+          "description": "Secret dell'applicazione Azure AD",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["send_message", "list_channels", "create_channel", "list_teams", "schedule_meeting", "upload_file"]
+  },
+  {
+    "id": "twilio",
+    "category": "messaging",
+    "name": "Twilio",
+    "icon": "twilio",
+    "description": "Invia SMS, MMS e gestisci chiamate vocali tramite Twilio",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["account_sid", "auth_token"],
+      "properties": {
+        "account_sid": {
+          "type": "string",
+          "title": "Account SID",
+          "description": "SID dell'account Twilio dalla console"
+        },
+        "auth_token": {
+          "type": "string",
+          "title": "Auth Token",
+          "description": "Token di autenticazione dell'account Twilio",
+          "format": "password"
+        },
+        "from_number": {
+          "type": "string",
+          "title": "Numero mittente",
+          "description": "Numero di telefono Twilio predefinito per l'invio (opzionale)"
+        }
+      }
+    },
+    "actions": ["send_sms", "send_mms", "make_call", "receive_sms", "manage_numbers", "get_message_status"]
+  }
+]

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent OS Brain — AI Agent Orchestration</title>
+<style>
+  :root {
+    --fire: #e8533c;
+    --fire-dark: #c9402e;
+    --fire-light: #ff6b52;
+    --bg: #0d0f12;
+    --bg2: #14171c;
+    --bg3: #1a1e25;
+    --text: #e8e8e8;
+    --muted: #8a8f9a;
+    --border: #2a2e36;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.6; overflow-x: hidden;
+  }
+  a { color: var(--fire-light); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Hero */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 40px 20px; position: relative;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 600px; background: radial-gradient(circle, rgba(232,83,60,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .logo { width: 80px; height: 80px; margin-bottom: 24px; }
+  .logo svg { width: 100%; height: 100%; }
+  h1 { font-size: 3.2rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+  h1 span { color: var(--fire); }
+  .subtitle { font-size: 1.3rem; color: var(--muted); max-width: 600px; margin-bottom: 40px; }
+
+  /* Download buttons */
+  .downloads { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px; }
+  .btn-download {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px; border-radius: 12px; font-size: 1rem; font-weight: 600;
+    transition: all 0.2s; cursor: pointer; border: none;
+  }
+  .btn-primary {
+    background: var(--fire); color: #fff;
+  }
+  .btn-primary:hover { background: var(--fire-dark); transform: translateY(-2px); text-decoration: none; }
+  .btn-secondary {
+    background: var(--bg3); color: var(--text); border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); transform: translateY(-2px); text-decoration: none; }
+
+  .install-cmd {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 20px; font-family: 'SF Mono', monospace; font-size: 0.9rem;
+    color: var(--muted); max-width: 600px; text-align: left; position: relative;
+    margin-bottom: 32px;
+  }
+  .install-cmd code { color: var(--text); }
+  .install-cmd .copy-btn {
+    position: absolute; right: 8px; top: 8px; background: var(--bg3);
+    border: 1px solid var(--border); color: var(--muted); padding: 4px 10px;
+    border-radius: 4px; font-size: 11px; cursor: pointer;
+  }
+  .install-cmd .copy-btn:hover { color: var(--text); }
+
+  .version-info { color: var(--muted); font-size: 0.85rem; }
+
+  /* Features */
+  .features {
+    padding: 80px 20px; max-width: 1100px; margin: 0 auto;
+  }
+  .features h2 { text-align: center; font-size: 2rem; margin-bottom: 48px; }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+  }
+  .feature-card {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 28px; transition: border-color 0.2s;
+  }
+  .feature-card:hover { border-color: var(--fire); }
+  .feature-icon { font-size: 2rem; margin-bottom: 12px; }
+  .feature-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+  .feature-card p { color: var(--muted); font-size: 0.9rem; }
+
+  /* How it works */
+  .how-it-works {
+    padding: 80px 20px; max-width: 800px; margin: 0 auto;
+  }
+  .how-it-works h2 { text-align: center; font-size: 2rem; margin-bottom: 48px; }
+  .steps { display: flex; flex-direction: column; gap: 24px; }
+  .step {
+    display: flex; gap: 20px; align-items: flex-start;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px;
+  }
+  .step-num {
+    width: 40px; height: 40px; border-radius: 50%; background: var(--fire);
+    color: #fff; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+  }
+  .step h3 { margin-bottom: 4px; }
+  .step p { color: var(--muted); font-size: 0.9rem; }
+
+  /* Footer */
+  footer {
+    text-align: center; padding: 40px 20px; border-top: 1px solid var(--border);
+    color: var(--muted); font-size: 0.85rem;
+  }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 2rem; }
+    .subtitle { font-size: 1rem; }
+    .downloads { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="logo">
+    <svg viewBox="0 0 80 80" fill="none">
+      <rect width="80" height="80" rx="18" fill="#e8533c" opacity="0.15"/>
+      <circle cx="40" cy="32" r="12" stroke="#e8533c" stroke-width="2.5" fill="none"/>
+      <path d="M22 58c0-10 8-16 18-16s18 6 18 16" stroke="#e8533c" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="56" cy="24" r="6" fill="#e8533c" opacity="0.6"/>
+      <path d="M56 30v8M52 34h8" stroke="#e8533c" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <h1>Agent OS <span>Brain</span></h1>
+  <p class="subtitle">
+    Piattaforma visuale per orchestrare agenti AI. Crea workflow multi-agente,
+    connetti qualsiasi modello, automatizza il tuo lavoro.
+  </p>
+
+  <div class="downloads">
+    <a href="https://github.com/briancortinovis/AgenteOSBrain/releases/latest/download/AgentOSBrain-arm64.dmg" class="btn-download btn-primary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      macOS (Apple Silicon)
+    </a>
+    <a href="https://github.com/briancortinovis/AgenteOSBrain/releases/latest/download/AgentOSBrain-x64.dmg" class="btn-download btn-secondary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      macOS (Intel)
+    </a>
+    <a href="https://github.com/briancortinovis/AgenteOSBrain/releases" class="btn-download btn-secondary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Tutte le versioni
+    </a>
+  </div>
+
+  <div class="install-cmd">
+    <code>curl -fsSL https://raw.githubusercontent.com/briancortinovis/AgenteOSBrain/main/install.sh | bash</code>
+    <button class="copy-btn" onclick="navigator.clipboard.writeText('curl -fsSL https://raw.githubusercontent.com/briancortinovis/AgenteOSBrain/main/install.sh | bash');this.textContent='Copiato!'">Copia</button>
+  </div>
+
+  <p class="version-info">v0.2.0 · Open Source · MIT License</p>
+</section>
+
+<section class="features">
+  <h2>Cosa puoi fare</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🗺️</div>
+      <h3>Workflow Visuali</h3>
+      <p>Crea pipeline AI con drag & drop. Collega nodi sorgente, analisi, decisione, esecuzione e memoria in mappe interattive.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>Multi-Agente</h3>
+      <p>Ogni nodo ha il suo agente AI con personalita, modello e strumenti dedicati. OpenAI, Anthropic, Gemini, Ollama — tutti insieme.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🧠</div>
+      <h3>Memoria Persistente</h3>
+      <p>Gli agenti ricordano. Memoria vettoriale integrata per contesto tra esecuzioni, ricerca semantica e apprendimento continuo.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <h3>31+ Skills Pronte</h3>
+      <p>Analisi documenti, SEO audit, code review, traduzione, email, fatturazione — skills professionali pronte all'uso.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Progetti Editoriali</h3>
+      <p>Pipeline preconfigurate per analisi documenti, revisione bozze, confronto PDF, generazione report in piu formati.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔗</div>
+      <h3>Connettori & Automazioni</h3>
+      <p>Email, Telegram, WhatsApp, webhook, cron scheduling. Automatizza qualsiasi flusso di lavoro con trigger e azioni.</p>
+    </div>
+  </div>
+</section>
+
+<section class="how-it-works">
+  <h2>Come funziona</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <h3>Installa e configura</h3>
+        <p>Scarica l'app o installa da terminale. Inserisci la tua API key di OpenAI, Anthropic o Gemini nelle impostazioni.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h3>Crea un progetto</h3>
+        <p>Scegli un progetto demo o parti da zero. Trascina i nodi sulla mappa, configura gli agenti, collega i flussi.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h3>Premi Play</h3>
+        <p>L'orchestratore esegue il workflow nodo per nodo, passando dati e contesto tra agenti. Segui il progresso in tempo reale.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div>
+        <h3>Raccogli i risultati</h3>
+        <p>Report, analisi, documenti, email — tutto viene salvato. Rivedi nella timeline, esporta, o automatizza con cron.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Agent OS Brain — Open Source AI Agent Orchestration</p>
+  <p style="margin-top: 8px;">
+    <a href="https://github.com/briancortinovis/AgenteOSBrain">GitHub</a> ·
+    <a href="https://github.com/briancortinovis/AgenteOSBrain/issues">Issues</a> ·
+    <a href="https://github.com/briancortinovis/AgenteOSBrain/releases">Releases</a>
+  </p>
+</footer>
+
+</body>
+</html>

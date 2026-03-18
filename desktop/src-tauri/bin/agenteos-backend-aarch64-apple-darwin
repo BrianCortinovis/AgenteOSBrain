@@ -1,0 +1,101 @@
+#!/bin/bash
+# ═══════════════════════════════════════════════════════════
+#  Agent OS Brain — Backend Sidecar (Standalone)
+#  Finds the best Node.js available and runs the backend
+# ═══════════════════════════════════════════════════════════
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BUNDLE="$SCRIPT_DIR/backend-bundle.cjs"
+MIN_NODE_VERSION=18
+
+# ─── Find Node.js ───
+# Priority: system node > homebrew node > nvm node > bundled node
+find_node() {
+  local candidates=(
+    "$(command -v node 2>/dev/null)"
+    "/usr/local/bin/node"
+    "/opt/homebrew/bin/node"
+  )
+
+  # Add nvm versions if available
+  if [ -d "$HOME/.nvm/versions/node" ]; then
+    for d in $(ls -r "$HOME/.nvm/versions/node" 2>/dev/null); do
+      candidates+=("$HOME/.nvm/versions/node/$d/bin/node")
+    done
+  fi
+
+  # Add fnm versions if available
+  if [ -d "$HOME/Library/Application Support/fnm/node-versions" ]; then
+    for d in $(ls -r "$HOME/Library/Application Support/fnm/node-versions" 2>/dev/null); do
+      candidates+=("$HOME/Library/Application Support/fnm/node-versions/$d/installation/bin/node")
+    done
+  fi
+
+  # Add volta versions if available
+  if [ -d "$HOME/.volta/tools/image/node" ]; then
+    for d in $(ls -r "$HOME/.volta/tools/image/node" 2>/dev/null); do
+      candidates+=("$HOME/.volta/tools/image/node/$d/bin/node")
+    done
+  fi
+
+  # Try each candidate
+  for node_path in "${candidates[@]}"; do
+    if [ -n "$node_path" ] && [ -x "$node_path" ]; then
+      local ver=$("$node_path" -v 2>/dev/null | sed 's/v//' | cut -d. -f1)
+      if [ -n "$ver" ] && [ "$ver" -ge "$MIN_NODE_VERSION" ] 2>/dev/null; then
+        echo "$node_path"
+        return 0
+      fi
+    fi
+  done
+
+  return 1
+}
+
+NODE_BIN=""
+
+# Try system Node first
+NODE_BIN=$(find_node)
+
+if [ -n "$NODE_BIN" ]; then
+  NODE_VER=$("$NODE_BIN" -v 2>/dev/null)
+  echo "[AgentOS] Using system Node.js $NODE_VER at $NODE_BIN"
+else
+  # Fallback: bundled Node.js inside the app
+  # When running inside .app bundle, the resources are here:
+  BUNDLED_NODE=""
+
+  # Check various locations where Tauri puts resources
+  for candidate in \
+    "$SCRIPT_DIR/node" \
+    "$SCRIPT_DIR/../Resources/bin/node" \
+    "$SCRIPT_DIR/../../Resources/bin/node" \
+    "$(dirname "$SCRIPT_DIR")/Resources/bin/node"; do
+    if [ -x "$candidate" ]; then
+      BUNDLED_NODE="$candidate"
+      break
+    fi
+  done
+
+  if [ -n "$BUNDLED_NODE" ]; then
+    NODE_BIN="$BUNDLED_NODE"
+    echo "[AgentOS] No system Node.js found — using bundled runtime"
+  else
+    echo "[AgentOS] ERROR: No Node.js found!" >&2
+    echo "[AgentOS] Install Node.js 18+: https://nodejs.org/" >&2
+    echo "[AgentOS] Or: brew install node" >&2
+
+    # Last resort: try to open a dialog (macOS)
+    if command -v osascript &>/dev/null; then
+      osascript -e 'display dialog "Node.js non trovato!\n\nAgent OS Brain richiede Node.js 18+.\n\nInstalla da: https://nodejs.org/" buttons {"OK"} default button 1 with icon caution with title "Agent OS Brain"' 2>/dev/null
+    fi
+    exit 1
+  fi
+fi
+
+# ─── Setup native modules ───
+# better-sqlite3 needs to find its .node addon
+export NODE_PATH="$SCRIPT_DIR:$SCRIPT_DIR/build/Release:$NODE_PATH"
+
+# ─── Run backend ───
+exec "$NODE_BIN" "$BUNDLE" "$@"

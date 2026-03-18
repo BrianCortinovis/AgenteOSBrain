@@ -1,0 +1,126 @@
+name: Release Desktop App
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g. v0.2.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-macos:
+    runs-on: macos-14  # M1 runner (Apple Silicon)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli --version "^2"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend + bundle backend
+        run: cd desktop && node scripts/build-all.js
+
+      - name: Build App (Apple Silicon)
+        run: cd desktop/src-tauri && cargo tauri build --target aarch64-apple-darwin
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+
+      - name: Build App (Intel)
+        run: cd desktop/src-tauri && cargo tauri build --target x86_64-apple-darwin
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p release-artifacts
+          cp desktop/src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg release-artifacts/AgentOSBrain-arm64.dmg
+          cp desktop/src-tauri/target/x86_64-apple-darwin/release/bundle/dmg/*.dmg release-artifacts/AgentOSBrain-x64.dmg 2>/dev/null || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-builds
+          path: release-artifacts/
+
+  # Windows build (optional, for future)
+  # build-windows:
+  #   runs-on: windows-latest
+  #   steps: ...
+
+  # Linux build (optional, for future)
+  # build-linux:
+  #   runs-on: ubuntu-latest
+  #   steps: ...
+
+  create-release:
+    needs: [build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Get version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Agent OS Brain ${{ steps.version.outputs.tag }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/macos-builds/*.dmg
+          body: |
+            ## Agent OS Brain ${{ steps.version.outputs.tag }}
+
+            ### Download
+            | Platform | Architettura | File |
+            |----------|-------------|------|
+            | macOS | Apple Silicon (M1/M2/M3) | `AgentOSBrain-arm64.dmg` |
+            | macOS | Intel | `AgentOSBrain-x64.dmg` |
+
+            ### Requisiti
+            - macOS 11+ (Big Sur o superiore)
+            - Node.js 20+ installato
+            - API key di almeno un provider AI (OpenAI, Anthropic, Gemini)
+
+            ### Installazione
+            1. Scarica il DMG per la tua architettura
+            2. Apri il DMG e trascina l'app in Applicazioni
+            3. Al primo avvio, vai in Impostazioni per configurare le API key
+
+            Oppure installa da terminale:
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/briancortinovis/AgenteOSBrain/main/install.sh | bash
+            ```

@@ -1,0 +1,99 @@
+[
+  {
+    "id": "hubspot",
+    "category": "crm",
+    "name": "HubSpot",
+    "icon": "hubspot",
+    "description": "Gestisci contatti, deal e pipeline di vendita con HubSpot CRM",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di HubSpot per l'autenticazione"
+        },
+        "portal_id": {
+          "type": "string",
+          "title": "Portal ID",
+          "description": "ID del portale HubSpot (opzionale)"
+        }
+      },
+      "required": ["api_key"]
+    },
+    "actions": ["create_contact", "update_contact", "create_deal", "list_contacts", "list_deals", "search", "manage_pipeline"]
+  },
+  {
+    "id": "pipedrive",
+    "category": "crm",
+    "name": "Pipedrive",
+    "icon": "pipedrive",
+    "description": "CRM orientato alle vendite per gestire lead, deal e attività commerciali",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "api_token": {
+          "type": "string",
+          "title": "API Token",
+          "description": "Token API di Pipedrive per l'autenticazione"
+        },
+        "domain": {
+          "type": "string",
+          "title": "Dominio",
+          "description": "Sottodominio aziendale di Pipedrive (es. 'company')"
+        }
+      },
+      "required": ["api_token", "domain"]
+    },
+    "actions": ["create_deal", "update_deal", "create_person", "list_deals", "list_activities", "manage_pipeline"]
+  },
+  {
+    "id": "salesforce",
+    "category": "crm",
+    "name": "Salesforce",
+    "icon": "salesforce",
+    "description": "Piattaforma CRM enterprise per gestione clienti, opportunità e report",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "instance_url": {
+          "type": "string",
+          "title": "URL Istanza",
+          "description": "URL dell'istanza Salesforce (es. 'https://mycompany.salesforce.com')"
+        },
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token di accesso OAuth di Salesforce"
+        }
+      },
+      "required": ["instance_url", "access_token"]
+    },
+    "actions": ["create_record", "update_record", "query", "list_objects", "create_report", "manage_leads"]
+  },
+  {
+    "id": "zoho-crm",
+    "category": "crm",
+    "name": "Zoho CRM",
+    "icon": "zoho",
+    "description": "Suite CRM completa per gestire vendite, marketing e supporto clienti",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token di accesso OAuth di Zoho CRM"
+        },
+        "api_domain": {
+          "type": "string",
+          "title": "Dominio API",
+          "description": "Dominio API di Zoho (default: https://www.zohoapis.com)",
+          "default": "https://www.zohoapis.com"
+        }
+      },
+      "required": ["access_token"]
+    },
+    "actions": ["create_record", "update_record", "search_records", "list_modules", "create_note", "manage_deals"]
+  }
+]

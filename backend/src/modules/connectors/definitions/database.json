@@ -1,0 +1,287 @@
+[
+  {
+    "id": "postgresql",
+    "category": "database",
+    "name": "PostgreSQL",
+    "icon": "postgresql",
+    "description": "Connettiti a database PostgreSQL per query, gestione dati e operazioni CRUD",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["host", "port", "database", "username", "password"],
+      "properties": {
+        "host": {
+          "type": "string",
+          "title": "Host",
+          "description": "Indirizzo del server PostgreSQL",
+          "default": "localhost"
+        },
+        "port": {
+          "type": "number",
+          "title": "Porta",
+          "description": "Porta del server PostgreSQL",
+          "default": 5432
+        },
+        "database": {
+          "type": "string",
+          "title": "Database",
+          "description": "Nome del database"
+        },
+        "username": {
+          "type": "string",
+          "title": "Utente",
+          "description": "Nome utente per la connessione"
+        },
+        "password": {
+          "type": "string",
+          "title": "Password",
+          "description": "Password per la connessione",
+          "format": "password"
+        },
+        "ssl": {
+          "type": "boolean",
+          "title": "Usa SSL",
+          "description": "Abilita connessione SSL",
+          "default": false
+        }
+      }
+    },
+    "actions": ["query", "insert", "update", "delete", "list_tables", "describe_table", "execute_raw"]
+  },
+  {
+    "id": "mysql",
+    "category": "database",
+    "name": "MySQL",
+    "icon": "mysql",
+    "description": "Connettiti a database MySQL o MariaDB per operazioni sui dati",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["host", "port", "database", "username", "password"],
+      "properties": {
+        "host": {
+          "type": "string",
+          "title": "Host",
+          "description": "Indirizzo del server MySQL",
+          "default": "localhost"
+        },
+        "port": {
+          "type": "number",
+          "title": "Porta",
+          "description": "Porta del server MySQL",
+          "default": 3306
+        },
+        "database": {
+          "type": "string",
+          "title": "Database",
+          "description": "Nome del database"
+        },
+        "username": {
+          "type": "string",
+          "title": "Utente",
+          "description": "Nome utente per la connessione"
+        },
+        "password": {
+          "type": "string",
+          "title": "Password",
+          "description": "Password per la connessione",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["query", "insert", "update", "delete", "list_tables", "describe_table", "execute_raw"]
+  },
+  {
+    "id": "sqlite",
+    "category": "database",
+    "name": "SQLite",
+    "icon": "sqlite",
+    "description": "Database SQLite leggero integrato, ideale per dati locali e prototipi",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["database_path"],
+      "properties": {
+        "database_path": {
+          "type": "string",
+          "title": "Percorso database",
+          "description": "Percorso del file database SQLite (.db o .sqlite)"
+        }
+      }
+    },
+    "actions": ["query", "insert", "update", "delete", "list_tables", "describe_table", "execute_raw"]
+  },
+  {
+    "id": "mongodb",
+    "category": "database",
+    "name": "MongoDB",
+    "icon": "mongodb",
+    "description": "Database NoSQL orientato ai documenti per dati flessibili e scalabili",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["connection_string"],
+      "properties": {
+        "connection_string": {
+          "type": "string",
+          "title": "Stringa di connessione",
+          "description": "URI di connessione MongoDB (es. mongodb://localhost:27017/mydb)",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["find", "insert", "update", "delete", "aggregate", "list_collections"]
+  },
+  {
+    "id": "supabase",
+    "category": "database",
+    "name": "Supabase",
+    "icon": "supabase",
+    "description": "Backend-as-a-Service open source con database PostgreSQL, auth e storage",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["project_url", "anon_key"],
+      "properties": {
+        "project_url": {
+          "type": "string",
+          "title": "URL Progetto",
+          "description": "URL del progetto Supabase (es. https://xxxxx.supabase.co)"
+        },
+        "anon_key": {
+          "type": "string",
+          "title": "Anon Key",
+          "description": "Chiave anonima (pubblica) del progetto Supabase"
+        },
+        "service_role_key": {
+          "type": "string",
+          "title": "Service Role Key",
+          "description": "Chiave service role per accesso amministrativo (opzionale)",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["query", "insert", "update", "delete", "rpc", "subscribe", "auth", "storage"]
+  },
+  {
+    "id": "firebase",
+    "category": "database",
+    "name": "Firebase",
+    "icon": "firebase",
+    "description": "Piattaforma Google Firebase con Firestore, Realtime DB e autenticazione",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["project_id", "service_account_json"],
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "title": "Project ID",
+          "description": "ID del progetto Firebase"
+        },
+        "service_account_json": {
+          "type": "string",
+          "title": "Service Account JSON",
+          "description": "Contenuto JSON del file di credenziali del service account Firebase",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["get_document", "set_document", "update_document", "delete_document", "query_collection", "auth"]
+  },
+  {
+    "id": "redis",
+    "category": "database",
+    "name": "Redis",
+    "icon": "redis",
+    "description": "Database in-memory per cache, sessioni e pub/sub in tempo reale",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "properties": {
+        "host": {
+          "type": "string",
+          "title": "Host",
+          "description": "Indirizzo del server Redis",
+          "default": "localhost"
+        },
+        "port": {
+          "type": "number",
+          "title": "Porta",
+          "description": "Porta del server Redis",
+          "default": 6379
+        },
+        "password": {
+          "type": "string",
+          "title": "Password",
+          "description": "Password per l'autenticazione Redis (opzionale)",
+          "format": "password"
+        },
+        "db": {
+          "type": "number",
+          "title": "Database",
+          "description": "Numero del database Redis",
+          "default": 0
+        }
+      }
+    },
+    "actions": ["get", "set", "delete", "list_keys", "publish", "subscribe"]
+  },
+  {
+    "id": "elasticsearch",
+    "category": "database",
+    "name": "Elasticsearch",
+    "icon": "elasticsearch",
+    "description": "Motore di ricerca e analisi distribuito per dati strutturati e non",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["node_url"],
+      "properties": {
+        "node_url": {
+          "type": "string",
+          "title": "URL Nodo",
+          "description": "URL del nodo Elasticsearch",
+          "default": "http://localhost:9200"
+        },
+        "username": {
+          "type": "string",
+          "title": "Utente",
+          "description": "Nome utente per l'autenticazione (opzionale)"
+        },
+        "password": {
+          "type": "string",
+          "title": "Password",
+          "description": "Password per l'autenticazione (opzionale)",
+          "format": "password"
+        }
+      }
+    },
+    "actions": ["search", "index", "update", "delete", "create_index", "list_indices"]
+  },
+  {
+    "id": "pinecone",
+    "category": "database",
+    "name": "Pinecone",
+    "icon": "pinecone",
+    "description": "Database vettoriale per ricerca semantica e applicazioni IA",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["api_key", "environment"],
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Pinecone"
+        },
+        "environment": {
+          "type": "string",
+          "title": "Ambiente",
+          "description": "Ambiente Pinecone (es. us-east-1-aws)"
+        }
+      }
+    },
+    "actions": ["upsert", "query", "delete", "list_indexes", "describe_index"]
+  }
+]

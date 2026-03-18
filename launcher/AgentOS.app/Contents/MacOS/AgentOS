@@ -1,0 +1,16 @@
+#!/bin/bash
+# Agent OS - macOS App Launcher
+# Avvia l'app in un terminale e la apre nel browser
+# Alla chiusura del terminale, tutti i processi vengono terminati
+
+APP_DIR="$(cd "$(dirname "$0")/../../../../" && pwd)"
+LAUNCHER_DIR="$APP_DIR/launcher"
+
+# Use osascript to open Terminal with our start script
+osascript -e "
+tell application \"Terminal\"
+    activate
+    set newTab to do script \"cd '$APP_DIR' && bash '$LAUNCHER_DIR/start.sh'\"
+    set custom title of newTab to \"Agent OS\"
+end tell
+"

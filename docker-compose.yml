@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  agenteos:
+    build: .
+    container_name: agenteos-brain
+    ports:
+      - "${PORT:-43101}:43101"
+    volumes:
+      - agenteos-data:/app/data
+    environment:
+      - PORT=43101
+      - NODE_ENV=production
+      - AGENT_OS_DATA_DIR=/app/data
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  agenteos-data:

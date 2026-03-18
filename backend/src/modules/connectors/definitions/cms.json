@@ -1,0 +1,80 @@
+[
+  {
+    "id": "wordpress",
+    "category": "cms",
+    "name": "WordPress",
+    "icon": "wordpress",
+    "description": "Gestisci contenuti, articoli e pagine del tuo sito WordPress",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "site_url": {
+          "type": "string",
+          "title": "URL del Sito",
+          "description": "URL del sito WordPress (es. 'https://miosito.com')"
+        },
+        "username": {
+          "type": "string",
+          "title": "Nome Utente",
+          "description": "Nome utente WordPress per l'autenticazione"
+        },
+        "app_password": {
+          "type": "string",
+          "format": "password",
+          "title": "Password Applicazione",
+          "description": "Password applicazione generata da WordPress per l'accesso API"
+        }
+      },
+      "required": ["site_url", "username", "app_password"]
+    },
+    "actions": ["create_post", "update_post", "list_posts", "upload_media", "manage_categories", "manage_pages"]
+  },
+  {
+    "id": "webflow",
+    "category": "cms",
+    "name": "Webflow",
+    "icon": "webflow",
+    "description": "Gestisci il CMS di Webflow, pubblica contenuti e aggiorna collezioni",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "api_token": {
+          "type": "string",
+          "title": "API Token",
+          "description": "Token API di Webflow per l'autenticazione"
+        },
+        "site_id": {
+          "type": "string",
+          "title": "ID Sito",
+          "description": "ID del sito Webflow (opzionale)"
+        }
+      },
+      "required": ["api_token"]
+    },
+    "actions": ["list_collections", "create_item", "update_item", "publish_site", "list_sites", "upload_asset"]
+  },
+  {
+    "id": "shopify",
+    "category": "cms",
+    "name": "Shopify",
+    "icon": "shopify",
+    "description": "Gestisci prodotti, ordini e il tuo negozio online Shopify",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "shop_domain": {
+          "type": "string",
+          "title": "Dominio Negozio",
+          "description": "Dominio del negozio Shopify (es. 'mionegozio.myshopify.com')"
+        },
+        "access_token": {
+          "type": "string",
+          "title": "Access Token",
+          "description": "Token di accesso API di Shopify"
+        }
+      },
+      "required": ["shop_domain", "access_token"]
+    },
+    "actions": ["list_products", "create_product", "update_product", "list_orders", "manage_inventory", "manage_customers"]
+  }
+]

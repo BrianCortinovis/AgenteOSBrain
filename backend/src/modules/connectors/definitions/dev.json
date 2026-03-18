@@ -1,0 +1,87 @@
+[
+  {
+    "id": "github",
+    "category": "dev",
+    "name": "GitHub",
+    "icon": "github",
+    "description": "Gestisci repository, issues, pull request e CI/CD tramite GitHub",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["personal_access_token"],
+      "properties": {
+        "personal_access_token": {
+          "type": "string",
+          "title": "Personal Access Token",
+          "description": "Token di accesso personale GitHub (classic o fine-grained)",
+          "format": "password"
+        },
+        "api_url": {
+          "type": "string",
+          "title": "API URL",
+          "description": "URL dell'API GitHub (per GitHub Enterprise)",
+          "default": "https://api.github.com"
+        }
+      }
+    },
+    "actions": ["list_repos", "create_repo", "create_issue", "create_pull_request", "list_commits", "manage_webhooks"]
+  },
+  {
+    "id": "gitlab",
+    "category": "dev",
+    "name": "GitLab",
+    "icon": "gitlab",
+    "description": "Integrazione con GitLab per gestione repository, merge request e pipeline CI/CD",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["personal_access_token"],
+      "properties": {
+        "personal_access_token": {
+          "type": "string",
+          "title": "Personal Access Token",
+          "description": "Token di accesso personale GitLab",
+          "format": "password"
+        },
+        "base_url": {
+          "type": "string",
+          "title": "URL Base",
+          "description": "URL dell'istanza GitLab (per installazioni self-hosted)",
+          "default": "https://gitlab.com"
+        }
+      }
+    },
+    "actions": ["list_projects", "create_project", "create_issue", "create_merge_request", "list_pipelines", "manage_webhooks"]
+  },
+  {
+    "id": "bitbucket",
+    "category": "dev",
+    "name": "Bitbucket",
+    "icon": "bitbucket",
+    "description": "Connettiti a Bitbucket per gestire repository, pull request e pipeline",
+    "status": "available",
+    "configSchema": {
+      "type": "object",
+      "required": ["username", "app_password"],
+      "properties": {
+        "username": {
+          "type": "string",
+          "title": "Username",
+          "description": "Nome utente Bitbucket"
+        },
+        "app_password": {
+          "type": "string",
+          "title": "App Password",
+          "description": "Password applicazione Bitbucket",
+          "format": "password"
+        },
+        "workspace": {
+          "type": "string",
+          "title": "Workspace",
+          "description": "Workspace Bitbucket (opzionale)"
+        }
+      }
+    },
+    "actions": ["list_repos", "create_repo", "create_pull_request", "list_pipelines", "manage_webhooks"]
+  }
+]

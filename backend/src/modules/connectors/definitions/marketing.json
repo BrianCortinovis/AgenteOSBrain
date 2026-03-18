@@ -1,0 +1,127 @@
+[
+  {
+    "id": "mailchimp",
+    "category": "marketing",
+    "name": "Mailchimp",
+    "icon": "mailchimp",
+    "description": "Crea campagne email, gestisci liste di contatti e analizza risultati con Mailchimp",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Mailchimp per l'autenticazione"
+        },
+        "server_prefix": {
+          "type": "string",
+          "title": "Prefisso Server",
+          "description": "Prefisso del server Mailchimp (es. 'us1', 'us2')"
+        }
+      },
+      "required": ["api_key", "server_prefix"]
+    },
+    "actions": ["create_campaign", "send_campaign", "manage_lists", "add_subscriber", "get_reports", "create_template"]
+  },
+  {
+    "id": "brevo",
+    "category": "marketing",
+    "name": "Brevo",
+    "icon": "brevo",
+    "description": "Piattaforma di email marketing e automazione per campagne e comunicazioni",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Brevo per l'autenticazione"
+        }
+      },
+      "required": ["api_key"]
+    },
+    "actions": ["create_campaign", "send_email", "manage_contacts", "create_list", "get_statistics", "manage_templates"]
+  },
+  {
+    "id": "typeform",
+    "category": "marketing",
+    "name": "Typeform",
+    "icon": "typeform",
+    "description": "Crea form e sondaggi interattivi con Typeform e raccogli risposte",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "personal_access_token": {
+          "type": "string",
+          "title": "Token di Accesso Personale",
+          "description": "Token di accesso personale di Typeform"
+        }
+      },
+      "required": ["personal_access_token"]
+    },
+    "actions": ["create_form", "list_forms", "get_responses", "create_webhook", "get_insights"]
+  },
+  {
+    "id": "jotform",
+    "category": "marketing",
+    "name": "Jotform",
+    "icon": "jotform",
+    "description": "Costruisci moduli online e raccogli dati con Jotform",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Jotform per l'autenticazione"
+        }
+      },
+      "required": ["api_key"]
+    },
+    "actions": ["create_form", "list_forms", "get_submissions", "create_report", "manage_fields"]
+  },
+  {
+    "id": "calendly",
+    "category": "marketing",
+    "name": "Calendly",
+    "icon": "calendly",
+    "description": "Automatizza la pianificazione degli appuntamenti con Calendly",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "personal_access_token": {
+          "type": "string",
+          "title": "Token di Accesso Personale",
+          "description": "Token di accesso personale di Calendly"
+        }
+      },
+      "required": ["personal_access_token"]
+    },
+    "actions": ["list_event_types", "get_scheduled_events", "create_invite_link", "cancel_event", "manage_availability"]
+  },
+  {
+    "id": "calcom",
+    "category": "marketing",
+    "name": "Cal.com",
+    "icon": "calcom",
+    "description": "Piattaforma open source per la pianificazione di appuntamenti e riunioni",
+    "status": "available",
+    "configSchema": {
+      "properties": {
+        "api_key": {
+          "type": "string",
+          "title": "API Key",
+          "description": "Chiave API di Cal.com per l'autenticazione"
+        },
+        "base_url": {
+          "type": "string",
+          "title": "URL Base",
+          "description": "URL base dell'API Cal.com (default: https://api.cal.com/v1)",
+          "default": "https://api.cal.com/v1"
+        }
+      },
+      "required": ["api_key"]
+    },
+    "actions": ["list_event_types", "get_bookings", "create_booking", "cancel_booking", "manage_availability"]
+  }
+]
