@@ -34,3 +34,11 @@ Thumbs.db
 
 # Temp
 tmp/
+desktop-electron/dist/
+desktop-electron/node_modules/
+desktop-electron/default-data/
+desktop-electron/frontend-dist/
+desktop-electron/backend-bundle.js
+desktop-electron/definitions/
+desktop-electron/migrations/
+desktop-electron/icons/

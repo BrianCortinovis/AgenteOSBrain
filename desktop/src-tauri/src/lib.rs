@@ -1,6 +1,7 @@
 use std::process::Command as StdCommand;
 use std::sync::Mutex;
 use std::path::PathBuf;
+use std::io::Write;
 use tauri::{AppHandle, Emitter, Manager};
 
 struct BackendChild(Mutex<Option<std::process::Child>>);
@@ -16,16 +17,41 @@ fn get_app_data_dir(app: AppHandle) -> Result<String, String> {
     Ok(path.to_string_lossy().to_string())
 }
 
+fn log_to_file(msg: &str) {
+    let home = std::env::var("HOME").unwrap_or_default();
+    let log_path = format!("{}/Library/Logs/AgentOSBrain.log", home);
+    if let Ok(mut f) = std::fs::OpenOptions::new().create(true).append(true).open(&log_path) {
+        let _ = writeln!(f, "[{}] {}", chrono_now(), msg);
+    }
+    eprintln!("{}", msg);
+}
+
+fn chrono_now() -> String {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs();
+    format!("{}", now)
+}
+
 /// Find the resource directory where our bundled files live
 fn find_resource_dir(app: &AppHandle) -> Option<PathBuf> {
     // Inside .app bundle: Contents/Resources/
     if let Ok(resource_path) = app.path().resource_dir() {
+        log_to_file(&format!("Resource dir: {:?}", resource_path));
+
         if resource_path.join("bin").join("backend-bundle.cjs").exists() {
             return Some(resource_path.join("bin"));
         }
-        // Sometimes resources are directly in resource_dir
         if resource_path.join("backend-bundle.cjs").exists() {
             return Some(resource_path.clone());
+        }
+
+        // List what's actually in resources
+        if let Ok(entries) = std::fs::read_dir(&resource_path) {
+            for entry in entries.flatten() {
+                log_to_file(&format!("  resource: {:?}", entry.path()));
+            }
         }
     }
 
@@ -40,19 +66,16 @@ fn find_resource_dir(app: &AppHandle) -> Option<PathBuf> {
 
 /// Find a working Node.js binary
 fn find_node(resource_dir: &PathBuf) -> Option<PathBuf> {
-    // 1. Bundled node inside the app
     let bundled = resource_dir.join("node");
     if bundled.exists() {
         return Some(bundled);
     }
 
-    // 2. System node via common paths
-    let candidates = vec![
-        "/usr/local/bin/node",
+    let candidates = [
         "/opt/homebrew/bin/node",
+        "/usr/local/bin/node",
         "/usr/bin/node",
     ];
-
     for path in candidates {
         let p = PathBuf::from(path);
         if p.exists() {
@@ -60,7 +83,6 @@ fn find_node(resource_dir: &PathBuf) -> Option<PathBuf> {
         }
     }
 
-    // 3. Try PATH
     if let Ok(output) = StdCommand::new("which").arg("node").output() {
         if output.status.success() {
             let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
@@ -92,11 +114,10 @@ fn start_backend(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let node_path = find_node(&resource_dir)
         .ok_or("Node.js not found — install Node.js 18+ from https://nodejs.org/")?;
 
-    println!("[AgentOS] Node.js: {:?}", node_path);
-    println!("[AgentOS] Bundle: {:?}", bundle_path);
-    println!("[AgentOS] Data: {:?}", app_data);
+    log_to_file(&format!("Node.js: {:?}", node_path));
+    log_to_file(&format!("Bundle: {:?}", bundle_path));
+    log_to_file(&format!("Data: {:?}", app_data));
 
-    // Set up native module path for better-sqlite3
     let node_path_env = format!(
         "{}:{}",
         resource_dir.to_string_lossy(),
@@ -116,12 +137,11 @@ fn start_backend(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
         .spawn()
         .map_err(|e| format!("Failed to spawn Node.js backend: {}", e))?;
 
-    println!("[AgentOS] Backend started (pid: {})", child.id());
+    log_to_file(&format!("Backend started (pid: {})", child.id()));
 
     let state = app.state::<BackendChild>();
     *state.0.lock().unwrap() = Some(child);
 
-    // Emit ready after a short delay (backend needs time to start)
     let handle = app.clone();
     tauri::async_runtime::spawn(async move {
         tokio::time::sleep(std::time::Duration::from_secs(2)).await;
@@ -133,24 +153,27 @@ fn start_backend(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    log_to_file("=== Agent OS Brain starting ===");
+
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_dialog::init())
         .manage(BackendChild(Mutex::new(None)))
         .invoke_handler(tauri::generate_handler![get_backend_url, get_app_data_dir])
         .setup(|app| {
+            log_to_file("Setup starting...");
             let handle = app.handle().clone();
 
             match start_backend(&handle) {
-                Ok(()) => println!("[AgentOS] Backend sidecar started on port 43101"),
+                Ok(()) => log_to_file("Backend started on port 43101"),
                 Err(e) => {
-                    eprintln!("[AgentOS] Failed to start backend: {}", e);
-                    // Don't crash — show the window anyway with an error
+                    log_to_file(&format!("Backend failed: {}", e));
                     let _ = handle.emit("backend-error", e.to_string());
                 }
             }
 
+            log_to_file("Setup complete");
             Ok(())
         })
         .on_window_event(|window, event| {
@@ -161,10 +184,22 @@ pub fn run() {
                 if let Some(mut child) = guard.take() {
                     let _ = child.kill();
                     let _ = child.wait();
-                    println!("[AgentOS] Backend process killed");
                 }
             }
-        })
-        .run(tauri::generate_context!())
-        .expect("error while running Agent OS Brain");
+        });
+
+    log_to_file("Builder created, calling run()...");
+
+    match builder.run(tauri::generate_context!()) {
+        Ok(()) => {},
+        Err(e) => {
+            log_to_file(&format!("FATAL: Tauri run() failed: {}", e));
+            // Try to show a native dialog
+            let msg = format!("Agent OS Brain non puo partire:\n\n{}\n\nControlla ~/Library/Logs/AgentOSBrain.log", e);
+            let _ = StdCommand::new("osascript")
+                .arg("-e")
+                .arg(format!("display dialog \"{}\" buttons {{\"OK\"}} with icon stop", msg))
+                .output();
+        }
+    }
 }

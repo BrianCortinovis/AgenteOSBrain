@@ -203,9 +203,29 @@ app.post('/api/v1/connectors/:connectorId/execute', async (req, res) => {
   }
 });
 
-// ─── Folder browser for settings ────────────────────────────────
+// ─── Native folder picker (macOS osascript) ─────────────────────
 import fs from 'fs';
 import pathModule from 'path';
+import { execSync } from 'child_process';
+
+app.post('/api/v1/pick-folder', (_req, res) => {
+  try {
+    if (process.platform === 'darwin') {
+      const result = execSync(
+        `osascript -e 'set chosenFolder to POSIX path of (choose folder with prompt "Seleziona cartella output")'`,
+        { timeout: 60000, encoding: 'utf-8' }
+      ).trim();
+      if (result) {
+        return res.json({ path: result.replace(/\/$/, '') });
+      }
+    }
+    res.json({ path: null, error: 'Nessuna cartella selezionata' });
+  } catch {
+    res.json({ path: null, error: 'Selezione annullata' });
+  }
+});
+
+// ─── Folder browser for settings ────────────────────────────────
 
 app.get('/api/v1/browse-folders', (req, res) => {
   const dir = String(req.query.path || process.env.HOME || '/');

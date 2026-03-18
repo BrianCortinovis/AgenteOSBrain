@@ -35,6 +35,20 @@ export default function FolderPicker({ value, onChange, placeholder }: FolderPic
     setOpen(false);
   };
 
+  // Try native folder picker via backend endpoint
+  const handleNativePick = async () => {
+    try {
+      const res = await fetch(`${API_ORIGIN}/api/v1/pick-folder`, { method: 'POST' });
+      const data = await res.json();
+      if (data.path) {
+        onChange(data.path);
+        return;
+      }
+    } catch {}
+    // Fallback: open the browse panel
+    setOpen(!open);
+  };
+
   return (
     <div style={{ position: 'relative' }}>
       <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
@@ -48,7 +62,7 @@ export default function FolderPicker({ value, onChange, placeholder }: FolderPic
           }}
         />
         <button
-          onClick={() => setOpen(!open)}
+          onClick={handleNativePick}
           title="Sfoglia cartelle"
           style={{
             padding: '6px 10px', borderRadius: 4, cursor: 'pointer', fontSize: 11,
