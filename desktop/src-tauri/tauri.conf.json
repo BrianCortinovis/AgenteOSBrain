@@ -45,9 +45,6 @@
       "bin/better_sqlite3.node",
       "bin/build/Release/better_sqlite3.node",
       "bin/migrations/*"
-    ],
-    "externalBin": [
-      "bin/agenteos-backend"
     ]
   },
   "plugins": {
