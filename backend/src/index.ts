@@ -302,6 +302,34 @@ app.post('/api/v1/webhooks/:connectorId', (req, res) => {
   res.json({ ok: true });
 });
 
+// ─── Serve frontend static files ─────────────────────────────
+const frontendDistPaths = [
+  process.env.STATIC_DIR,
+  pathModule.resolve(__dirname, '../../frontend/dist'),
+  pathModule.resolve(__dirname, '../../../frontend/dist'),
+  pathModule.resolve(process.cwd(), 'frontend/dist'),
+].filter(Boolean) as string[];
+
+let frontendDir = '';
+for (const p of frontendDistPaths) {
+  if (fs.existsSync(pathModule.join(p, 'index.html'))) {
+    frontendDir = p;
+    break;
+  }
+}
+
+if (frontendDir) {
+  console.log(`[Agent OS] Frontend: ${frontendDir}`);
+  app.use(express.static(frontendDir));
+  // SPA fallback — serve index.html for all non-API routes
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api/') || req.path.startsWith('/ws')) return next();
+    res.sendFile(pathModule.join(frontendDir, 'index.html'));
+  });
+} else {
+  console.warn('[Agent OS] Frontend dist non trovato — solo API disponibile');
+}
+
 app.use(errorHandler);
 
 // ─── Start server with WebSocket ────────────────────────────────
