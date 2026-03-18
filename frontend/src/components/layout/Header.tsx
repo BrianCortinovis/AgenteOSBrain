@@ -272,20 +272,14 @@ export default function Header() {
     bozza: 'Bozza',
   };
 
-  // Detect Electron (traffic lights need padding)
-  const isElectron = typeof navigator !== 'undefined' && navigator.userAgent.includes('Electron');
-
   return (
     <div style={{
       height: 48, background: 'var(--bg-secondary)',
       borderBottom: '1px solid var(--border-primary)',
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       padding: '0 16px', flexShrink: 0,
-      // Extra left padding for macOS traffic lights in Electron
-      paddingLeft: isElectron ? 80 : 16,
-      WebkitAppRegion: isElectron ? 'drag' : undefined,
-    } as any}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, WebkitAppRegion: 'no-drag' } as any}>
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <button className="btn-icon" onClick={toggleSidebar}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <path d="M3 12h18M3 6h18M3 18h18"/>

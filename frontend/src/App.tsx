@@ -54,11 +54,28 @@ function App() {
     }
   };
 
+  const isElectron = typeof navigator !== 'undefined' && navigator.userAgent.includes('Electron');
+
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw' }}>
-      <Sidebar />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-        <Header />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
+      {/* macOS titlebar drag region for traffic lights */}
+      {isElectron && (
+        <div style={{
+          height: 28, background: 'var(--bg-secondary)',
+          borderBottom: '1px solid var(--border-primary)',
+          WebkitAppRegion: 'drag',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0,
+        } as any}>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500, opacity: 0.6 }}>
+            Agent OS Brain
+          </span>
+        </div>
+      )}
+      <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
+        <Sidebar />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+          <Header />
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden', position: 'relative' }}>
           <div style={{ flex: 1, overflow: 'auto', minWidth: 0 }}>
             {renderMainContent()}
@@ -70,6 +87,7 @@ function App() {
             <ChatPanel />
           )}
         </div>
+      </div>
       </div>
     </div>
   );

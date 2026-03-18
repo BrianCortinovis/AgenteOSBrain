@@ -15,19 +15,27 @@ function getDataDir() {
   const dataDir = path.join(app.getPath('userData'), 'data');
   fs.mkdirSync(dataDir, { recursive: true });
 
-  // First run: copy default database with demo projects, agents, skills
+  // First run or empty DB: copy default database with demo projects, agents, skills
   const dbPath = path.join(dataDir, 'agenteos.db');
-  if (!fs.existsSync(dbPath)) {
+  const dbExists = fs.existsSync(dbPath);
+  const dbSize = dbExists ? fs.statSync(dbPath).size : 0;
+  // If DB doesn't exist or is basically empty (< 50KB = no seed data), install defaults
+  if (!dbExists || dbSize < 50000) {
     let defaultDb = '';
     if (isDev) {
       defaultDb = path.join(__dirname, 'default-data', 'agenteos.db');
     } else {
       defaultDb = path.join(process.resourcesPath, 'default-data', 'agenteos.db');
     }
+    console.log('[AgentOS] Looking for default DB at:', defaultDb);
     if (fs.existsSync(defaultDb)) {
       fs.copyFileSync(defaultDb, dbPath);
-      console.log('[AgentOS] Default database installed with demo projects');
+      console.log('[AgentOS] Default database installed (3.1MB with demo projects, agents, skills)');
+    } else {
+      console.warn('[AgentOS] Default DB not found at:', defaultDb);
     }
+  } else {
+    console.log('[AgentOS] Using existing database:', dbSize, 'bytes');
   }
 
   // Ensure outputs dir
