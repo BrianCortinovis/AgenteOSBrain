@@ -3,11 +3,13 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
+const dataDir = process.env.AGENT_OS_DATA_DIR || path.resolve(__dirname, '../data');
+
 export const config = {
   port: parseInt(process.env.PORT || process.env.AGENT_OS_BACKEND_PORT || '43101', 10),
-  dataDir: path.resolve(__dirname, '../data'),
-  dbPath: path.resolve(__dirname, '../data/agenteos.db'),
-  outputsDir: path.resolve(__dirname, '../data/outputs'),
+  dataDir,
+  dbPath: process.env.AGENT_OS_DB_PATH || path.join(dataDir, 'agenteos.db'),
+  outputsDir: process.env.AGENT_OS_OUTPUTS_DIR || path.join(dataDir, 'outputs'),
   openaiApiKey: process.env.OPENAI_API_KEY || '',
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
   geminiApiKey: process.env.GEMINI_API_KEY || '',
