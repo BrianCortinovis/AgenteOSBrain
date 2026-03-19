@@ -72,6 +72,7 @@ function WorkProjectsList() {
 function AppsList() {
   const [apps, setApps] = useState<any[]>([]);
   const [confirm, setConfirm] = useState<string | null>(null);
+  const [deletePreview, setDeletePreview] = useState<string | null>(null); // glow alert before delete
   const { openWindow, closeWindow } = useUIStore();
 
   const reload = () => api.get<any[]>('/apps').then(setApps).catch(() => {});
@@ -83,11 +84,20 @@ function AppsList() {
     openWindow('app-preview' as any, name, { appName: name });
   };
 
-  const deleteApp = async (name: string) => {
-    await api.delete?.(`/apps/${name}`).catch(() =>
-      fetch(`/api/v1/apps/${encodeURIComponent(name)}`, { method: 'DELETE' })
-    );
+  const requestDelete = (name: string) => {
+    setDeletePreview(name); // start glow alert
+    setConfirm(name);
+  };
+
+  const cancelDelete = () => {
+    setDeletePreview(null);
     setConfirm(null);
+  };
+
+  const deleteApp = async (name: string) => {
+    await fetch(`/api/v1/apps/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    setConfirm(null);
+    setDeletePreview(null);
     reload();
   };
 
@@ -133,8 +143,15 @@ function AppsList() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             {apps.map(a => (
               <div key={a.name} style={{
-                borderRadius: 10, background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden',
+                borderRadius: 10,
+                background: deletePreview === a.name ? 'rgba(239,68,68,0.06)' : 'rgba(255,255,255,0.03)',
+                border: deletePreview === a.name
+                  ? '1px solid rgba(239,68,68,0.5)'
+                  : '1px solid rgba(255,255,255,0.05)',
+                overflow: 'hidden',
+                boxShadow: deletePreview === a.name ? '0 0 0 2px rgba(239,68,68,0.15), 0 0 20px rgba(239,68,68,0.2)' : 'none',
+                animation: deletePreview === a.name ? 'flow-delete-pulse 0.7s ease-in-out infinite alternate' : 'none',
+                transition: 'border 0.2s, box-shadow 0.2s',
               }}>
                 {/* Row */}
                 <div
@@ -152,7 +169,7 @@ function AppsList() {
                     {btn('Apri', '99,179,237', () => openApp(a.name), 'Apri anteprima')}
                     {btn('Modifica', '167,139,250', () => editApp(a.name), 'Riapri builder per modificarla')}
                     {btn('Duplica', '52,211,153', () => duplicateApp(a.name), 'Crea copia')}
-                    {btn('Elimina', '239,68,68', () => setConfirm(a.name), 'Elimina app')}
+                    {btn('Elimina', '239,68,68', () => requestDelete(a.name), 'Elimina app')}
                   </div>
                 </div>
 
@@ -161,7 +178,7 @@ function AppsList() {
                   <div style={{ padding: '8px 14px', background: 'rgba(239,68,68,0.08)', borderTop: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', gap: 10 }}>
                     <span style={{ fontSize: 12, color: 'rgba(239,68,68,0.9)', flex: 1 }}>Eliminare "{a.name}" definitivamente?</span>
                     <button onClick={() => deleteApp(a.name)} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', background: 'rgba(239,68,68,0.8)', color: '#fff', fontSize: 11, cursor: 'pointer', fontWeight: 600 }}>Elimina</button>
-                    <button onClick={() => setConfirm(null)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)', background: 'none', color: 'rgba(224,230,240,0.5)', fontSize: 11, cursor: 'pointer' }}>Annulla</button>
+                    <button onClick={cancelDelete} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)', background: 'none', color: 'rgba(224,230,240,0.5)', fontSize: 11, cursor: 'pointer' }}>Annulla</button>
                   </div>
                 )}
               </div>
@@ -451,17 +468,17 @@ export default function FlowDesktop() {
           position: 'absolute',
           left: chatBtnPos.x, top: chatBtnPos.y,
           width: 44, height: 44, borderRadius: '50%',
-          background: chatLogVisible ? 'rgba(99,179,237,0.18)' : 'rgba(255,255,255,0.07)',
-          border: chatLogVisible ? '1px solid rgba(99,179,237,0.4)' : '1px solid rgba(255,255,255,0.12)',
+          background: chatLogVisible ? 'rgba(220,50,30,0.12)' : 'rgba(255,255,255,0.07)',
+          border: chatLogVisible ? '1px solid rgba(220,50,30,0.35)' : '1px solid rgba(255,255,255,0.12)',
           backdropFilter: 'blur(12px)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'grab', zIndex: 45, userSelect: 'none',
           transition: 'background 0.2s, border 0.2s',
-          boxShadow: chatLogVisible ? '0 0 18px rgba(99,179,237,0.2)' : '0 2px 12px rgba(0,0,0,0.3)',
+          boxShadow: chatLogVisible ? '0 0 18px rgba(220,50,30,0.15)' : '0 2px 12px rgba(0,0,0,0.3)',
         }}
         title={chatLogVisible ? 'Nascondi risposte AI' : 'Mostra risposte AI'}
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={chatLogVisible ? 'rgba(99,179,237,0.9)' : 'rgba(200,210,220,0.5)'} strokeWidth="1.8">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={chatLogVisible ? 'rgba(220,50,30,0.85)' : 'rgba(200,210,220,0.5)'} strokeWidth="1.8">
           <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
         </svg>
       </div>
