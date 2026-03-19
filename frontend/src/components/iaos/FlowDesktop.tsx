@@ -1,9 +1,9 @@
 import { useUIStore } from '../../stores/useUIStore';
-import FlowStatusBar, { flowSelectedProvider, flowSelectedModel } from './IAOSStatusBar';
-import FlowDock from './IAOSDock';
-import FlowWindow from './IAOSWindow';
-import FlowProcessPanel from './IAOSProcessPanel';
-import FlowFileManager from './IAOSFileManager';
+import FlowStatusBar, { flowSelectedProvider, flowSelectedModel } from './FlowStatusBar';
+import FlowDock from './FlowDock';
+import FlowWindow from './FlowWindow';
+import FlowProcessPanel from './FlowProcessPanel';
+import FlowFileManager from './FlowFileManager';
 import GraphCanvas from '../graph/GraphCanvas';
 import ProjectBuilder from '../builder/ProjectBuilder';
 import AgentPanel from '../agents/AgentPanel';
@@ -20,7 +20,7 @@ import { useGraphStore } from '../../stores/useGraphStore';
 import { useChatStore } from '../../stores/useChatStore';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { api, API_ORIGIN } from '../../api/client';
-import './iaos.css';
+import './flow.css';
 
 // ─── Work Projects List ────────────────────────────────────────
 function WorkProjectsList() {

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useUIStore } from '../../stores/useUIStore';
 import { api } from '../../api/client';
+import { flowSelectedProvider, flowSelectedModel } from './FlowStatusBar';
 
 type Message = { role: 'user' | 'assistant' | 'result'; content: string };
 type FlowAction = { type: string; component?: string; title?: string; props?: any; content?: string; params?: any };
@@ -93,8 +94,8 @@ export default function FlowChat() {
         message: userMsg || 'Analizza il file allegato e fornisci un riassunto.',
         file_content: pendingFile?.content,
         file_name: pendingFile?.name,
-        provider_id: 'openai',
-        model_id: 'gpt-4o',
+        provider_id: flowSelectedProvider,
+        model_id: flowSelectedModel,
         history: newHistory.slice(-10),
       });
 

@@ -7,17 +7,17 @@ import { useEffect, useState } from 'react';
 import { useProjectStore } from '../../stores/useProjectStore';
 import { useGraphStore } from '../../stores/useGraphStore';
 import { useChatStore } from '../../stores/useChatStore';
-import FlowFileManager from './IAOSFileManager';
+import FlowFileManager from './FlowFileManager';
 import FlowAgentsView from './FlowAgentsView';
 import FlowBrowser from './FlowBrowser';
-import FlowProcessPanel from './IAOSProcessPanel';
+import FlowProcessPanel from './FlowProcessPanel';
 import GraphCanvas from '../graph/GraphCanvas';
 import ConnectorBrowser from '../connectors/ConnectorBrowser';
 import ProjectBuilder from '../builder/ProjectBuilder';
 import ProviderSettings from '../providers/ProviderSettings';
 import OutputViewer from '../outputs/OutputViewer';
 import BrianMap from './BrianMap';
-import './iaos.css';
+import './flow.css';
 
 function PopupContent({ component, props }: { component: string; props: Record<string, any> }) {
   const { setCurrentProject } = useProjectStore();

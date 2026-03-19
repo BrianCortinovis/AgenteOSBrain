@@ -16,7 +16,7 @@ import TimelineView from './components/timeline/TimelineView';
 import WorkspaceSettings from './components/workspace/WorkspaceSettings';
 import DashboardPanel from './components/workspace/DashboardPanel';
 import ProjectBuilder from './components/builder/ProjectBuilder';
-import FlowDesktop from './components/iaos/IAOSDesktop';
+import FlowDesktop from './components/iaos/FlowDesktop';
 import PopupWindow from './components/iaos/PopupWindow';
 
 function App() {

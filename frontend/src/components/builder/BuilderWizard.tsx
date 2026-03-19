@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useProjectStore } from '../../stores/useProjectStore';
 import { api } from '../../api/client';
+import { flowSelectedProvider, flowSelectedModel } from '../iaos/FlowStatusBar';
 
 type WizardStep = {
   question: string;
@@ -217,8 +218,8 @@ Il CSS deve essere dettagliato e professionale, non generico.`;
       setBuildStatus('Generazione piano app con AI...');
       await api.post(`/projects/${project.id}/chat`, {
         message: prompt,
-        provider_id: 'openai',
-        model_id: 'gpt-4o',
+        provider_id: flowSelectedProvider,
+        model_id: flowSelectedModel,
       });
 
       setBuildStatus('Avvio build...');

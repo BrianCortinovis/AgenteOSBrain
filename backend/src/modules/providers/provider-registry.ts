@@ -32,9 +32,20 @@ class ProviderRegistry {
     return Array.from(this.adapters.values());
   }
 
+  // ─── Fallback priority chain ──────────────────────────────────────────────
+  // Order: Claude → Gemini → Ollama → other enabled providers
+  // Fallbacks are TEMPORARY — agent/project defaults are never modified.
+  private readonly FALLBACK_CHAIN: Array<{ provider: string; model: string }> = [
+    { provider: 'anthropic', model: 'claude-sonnet-4-6' },
+    { provider: 'gemini',    model: 'gemini-2.0-flash' },
+    { provider: 'ollama',    model: 'llama3' },
+  ];
+
   /**
    * OpenClaw-style unified chat: supports "provider/model" format.
    * E.g., "openai/gpt-4o", "deepseek/deepseek-chat", "openrouter/anthropic/claude-sonnet-4"
+   * Auto-fallback chain: if primary fails → Claude → Gemini → Ollama → other enabled.
+   * Fallbacks are temporary and do NOT change agent/project defaults.
    */
   async chat(
     providerId: string,
@@ -44,23 +55,63 @@ class ProviderRegistry {
     fallbackProviderId?: string,
     fallbackModelId?: string,
   ) {
-    // Support "provider/model" unified format
     const { resolvedProvider, resolvedModel } = resolveProviderModel(providerId, model);
 
     const adapter = this.get(resolvedProvider);
-    if (!adapter) throw new Error(`Provider ${resolvedProvider} non trovato`);
+    if (!adapter) {
+      console.warn(`[Provider] Provider "${resolvedProvider}" non trovato — avvio fallback`);
+      return this._fallback(resolvedProvider, messages, options);
+    }
+
     try {
       return await adapter.chat(messages, resolvedModel, options);
-    } catch (err) {
+    } catch (err: any) {
+      const isQuotaOrAuth = /quota|rate.limit|401|403|insufficient|billing|overloaded|unavailable/i.test(err?.message || '');
+      if (isQuotaOrAuth) {
+        console.warn(`[Provider] ${resolvedProvider} fallito (${err.message?.slice(0,80)}) — fallback automatico`);
+        return this._fallback(resolvedProvider, messages, options);
+      }
+      // Legacy explicit fallback
       if (fallbackProviderId) {
         const fallback = this.get(fallbackProviderId);
         if (fallback) {
-          console.log(`[Provider] Fallback da ${resolvedProvider} a ${fallbackProviderId}`);
+          console.log(`[Provider] Fallback esplicito da ${resolvedProvider} a ${fallbackProviderId}`);
           return await fallback.chat(messages, fallbackModelId || resolvedModel, options);
         }
       }
       throw err;
     }
+  }
+
+  /**
+   * Internal fallback: try Claude → Gemini → Ollama → any enabled provider.
+   * Never modifies defaults.
+   */
+  private async _fallback(
+    failedProvider: string,
+    messages: { role: string; content: string }[],
+    options?: ChatOptions,
+  ) {
+    const chain = [
+      ...this.FALLBACK_CHAIN,
+      ...Array.from(this.adapters.values())
+        .filter(a => !this.FALLBACK_CHAIN.some(f => f.provider === a.id) && a.id !== failedProvider)
+        .map(a => ({ provider: a.id, model: a.defaultModel || '' })),
+    ].filter(f => f.provider !== failedProvider);
+
+    for (const { provider, model } of chain) {
+      const adapter = this.get(provider);
+      if (!adapter) continue;
+      try {
+        console.log(`[Provider] Tentativo fallback su ${provider}/${model}`);
+        const result = await adapter.chat(messages, model, options);
+        console.log(`[Provider] Fallback riuscito: ${provider}/${model}`);
+        return { ...result, _fallback: provider }; // mark as fallback (non-breaking)
+      } catch {
+        continue;
+      }
+    }
+    throw new Error('Tutti i provider AI non disponibili. Verifica le API key in Impostazioni.');
   }
 
   /**
