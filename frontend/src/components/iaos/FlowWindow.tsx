@@ -18,7 +18,7 @@ function buildPopupUrl(win: WinType): string {
 }
 
 export default function FlowWindow({ win, children }: Props) {
-  const { closeWindow, minimizeWindow, focusWindow, moveWindow, resizeWindow } = useUIStore();
+  const { closeWindow, minimizeWindow, focusWindow, moveWindow, resizeWindow, windowOpacity } = useUIStore();
 
   const handlePopOut = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -104,7 +104,7 @@ export default function FlowWindow({ win, children }: Props) {
           cursor: maximized ? 'default' : 'grab',
           userSelect: 'none',
           flexShrink: 0,
-          background: 'rgba(15, 17, 25, 0.5)',
+          background: `rgba(15, 17, 25, ${Math.min(windowOpacity, 0.85)})`,
           backdropFilter: 'blur(16px)',
           borderRadius: '8px 8px 0 0',
           borderBottom: '1px solid rgba(255,255,255,0.04)',
@@ -149,12 +149,13 @@ export default function FlowWindow({ win, children }: Props) {
         </div>
       </div>
 
-      {/* Content — fully transparent overlay */}
+      {/* Content */}
       <div style={{
         flex: 1,
         overflow: 'auto',
         borderRadius: '0 0 8px 8px',
-        background: 'transparent',
+        background: `rgba(15,18,25,${windowOpacity})`,
+        backdropFilter: windowOpacity < 0.95 ? `blur(${Math.round((1 - windowOpacity) * 30)}px)` : 'none',
       }}>
         {children}
       </div>

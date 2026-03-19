@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { providersApi } from '../../api/providers.api';
 import FolderPicker from '../common/FolderPicker';
+import { useUIStore } from '../../stores/useUIStore';
 
 const fieldStyle: React.CSSProperties = {
   width: '100%', padding: '6px 10px', fontSize: 12, background: 'var(--bg-input)',
@@ -196,6 +197,75 @@ export default function ProviderSettings() {
           {saving ? 'Salvataggio...' : 'Salva'}
         </button>
         {saved && <span style={{ fontSize: 11, color: '#6dab72' }}>Salvato</span>}
+      </div>
+
+      <FlowDesktopSettings />
+    </div>
+  );
+}
+
+function FlowDesktopSettings() {
+  const { windowOpacity, setWindowOpacity, singleWindowMode, setSingleWindowMode } = useUIStore();
+
+  return (
+    <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--border-primary)' }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14 }}>
+        FLOW Desktop
+      </div>
+
+      {/* Opacity slider */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 500 }}>Trasparenza schede</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'monospace' }}>
+            {Math.round(windowOpacity * 100)}%
+          </span>
+        </div>
+        <input
+          type="range"
+          min={0.15}
+          max={1}
+          step={0.01}
+          value={windowOpacity}
+          onChange={e => setWindowOpacity(parseFloat(e.target.value))}
+          style={{ width: '100%', accentColor: '#63b3ed', cursor: 'pointer' }}
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--text-muted)', marginTop: 4 }}>
+          <span>Trasparente</span>
+          <span>Opaco</span>
+        </div>
+      </div>
+
+      {/* Single window mode toggle */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 14px',
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.07)',
+        borderRadius: 8,
+      }}>
+        <div>
+          <div style={{ fontSize: 12, color: 'var(--text-primary)', fontWeight: 500, marginBottom: 2 }}>
+            Modalità scheda singola
+          </div>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.4 }}>
+            Apri Work → chiude Builder. I risultati AI restano sempre sul desktop.
+          </div>
+        </div>
+        <button
+          onClick={() => setSingleWindowMode(!singleWindowMode)}
+          style={{
+            width: 42, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
+            background: singleWindowMode ? '#63b3ed' : 'rgba(255,255,255,0.1)',
+            position: 'relative', transition: 'background 0.2s', flexShrink: 0, marginLeft: 16,
+          }}
+        >
+          <span style={{
+            position: 'absolute', top: 3, left: singleWindowMode ? 21 : 3,
+            width: 18, height: 18, borderRadius: '50%', background: 'white',
+            transition: 'left 0.2s', display: 'block',
+          }} />
+        </button>
       </div>
     </div>
   );

@@ -26,6 +26,10 @@ interface UIState {
   flowNextZ: number;
   flowPendingFile: { name: string; content: string } | null;
 
+  // Window appearance & behaviour settings
+  windowOpacity: number;       // 0.3 – 1.0
+  singleWindowMode: boolean;   // close previous section when opening a new one
+
   setView: (view: View) => void;
   toggleSidebar: () => void;
   toggleChat: () => void;
@@ -34,6 +38,8 @@ interface UIState {
   setFlowMode: (on: boolean) => void;
   toggleFlowChat: () => void;
   setFlowPendingFile: (file: { name: string; content: string } | null) => void;
+  setWindowOpacity: (v: number) => void;
+  setSingleWindowMode: (v: boolean) => void;
 
   // Window manager
   openWindow: (component: FlowWindowType, title: string, props?: Record<string, any>) => void;
@@ -56,6 +62,8 @@ export const useUIStore = create<UIState>((set, get) => ({
   flowChatOpen: true,
   flowNextZ: 10,
   flowPendingFile: null,
+  windowOpacity: 0.97,
+  singleWindowMode: false,
 
   setView: (view) => set({ currentView: view }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -65,11 +73,22 @@ export const useUIStore = create<UIState>((set, get) => ({
   setFlowMode: (on) => set({ flowMode: on }),
   toggleFlowChat: () => set((s) => ({ flowChatOpen: !s.flowChatOpen })),
   setFlowPendingFile: (file) => set({ flowPendingFile: file }),
+  setWindowOpacity: (v) => set({ windowOpacity: v }),
+  setSingleWindowMode: (v) => set({ singleWindowMode: v }),
 
   openWindow: (component, title, props) => {
+    const state = get();
+
+    // Single window mode: close existing section windows (keep AI result panels)
+    const SECTION_TYPES: FlowWindowType[] = ['builder','work','work-graph','app-gallery','app-preview','processes','settings','agenti','timeline','risultati','connettori','import','file-viewer','files','browser','docanalyzer'];
+    if (state.singleWindowMode && SECTION_TYPES.includes(component)) {
+      set(s => ({
+        flowWindows: s.flowWindows.filter(w => !SECTION_TYPES.includes(w.component)),
+      }));
+    }
+
     const existing = get().flowWindows.find(w => w.component === component && !w.props?.appName);
     if (existing && component !== 'app-preview') {
-      // Focus existing window instead of opening duplicate
       get().focusWindow(existing.id);
       if (existing.minimized) {
         set(s => ({ flowWindows: s.flowWindows.map(w => w.id === existing.id ? { ...w, minimized: false } : w) }));
