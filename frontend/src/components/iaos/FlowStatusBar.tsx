@@ -28,6 +28,49 @@ const titleMap: Record<string, string> = {
 export let flowSelectedProvider = 'openai';
 export let flowSelectedModel = 'gpt-4o';
 
+// ─── Minimized windows strip ─────────────────────────────────────
+function MinimizedWindows() {
+  const { flowWindows, focusWindow, closeWindow } = useUIStore();
+  const minimized = flowWindows.filter(w => w.minimized);
+  if (minimized.length === 0) return null;
+  return (
+    <>
+      {minimized.map(w => (
+        <div key={w.id} style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
+          <button
+            onClick={() => focusWindow(w.id)}
+            style={{
+              padding: '3px 8px 3px 8px', borderRadius: '6px 0 0 6px',
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+              borderRight: 'none',
+              color: 'rgba(224,230,240,0.55)', fontSize: 10, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 4,
+              whiteSpace: 'nowrap', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis',
+            }}
+            title={`Ripristina: ${w.title}`}
+          >
+            <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(220,50,30,0.5)', flexShrink: 0 }} />
+            {w.title}
+          </button>
+          <button
+            onClick={() => closeWindow(w.id)}
+            title="Chiudi"
+            style={{
+              width: 20, height: '100%', borderRadius: '0 6px 6px 0',
+              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)',
+              color: 'rgba(224,230,240,0.3)', fontSize: 10, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '3px 0',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(239,68,68,0.2)'; (e.currentTarget as HTMLElement).style.color = '#f87171'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLElement).style.color = 'rgba(224,230,240,0.3)'; }}
+          >✕</button>
+        </div>
+      ))}
+    </>
+  );
+}
+
 export default function FlowStatusBar() {
   const [time, setTime] = useState(new Date());
   const [stats, setStats] = useState({ apps: 0, providers: 0 });
@@ -107,23 +150,8 @@ export default function FlowStatusBar() {
       ))}
 
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8, overflow: 'hidden' }}>
-        {/* Minimized windows in topbar */}
-        {useUIStore.getState().flowWindows.filter(w => w.minimized).map(w => (
-          <button key={w.id}
-            onClick={() => useUIStore.getState().focusWindow(w.id)}
-            style={{
-              padding: '3px 8px', borderRadius: 6,
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)',
-              color: 'rgba(224,230,240,0.5)', fontSize: 10, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0,
-              whiteSpace: 'nowrap', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis',
-            }}
-            title={`Ripristina: ${w.title}`}
-          >
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(220,50,30,0.5)', flexShrink: 0 }} />
-            {w.title}
-          </button>
-        ))}
+        {/* Minimized windows in topbar — click to restore, × to close */}
+        <MinimizedWindows />
       </div>
 
       {/* Model selector */}

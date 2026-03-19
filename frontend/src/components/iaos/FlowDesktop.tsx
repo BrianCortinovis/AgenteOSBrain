@@ -71,35 +71,104 @@ function WorkProjectsList() {
 // ─── Apps List ──────────────────────────────────────────────────
 function AppsList() {
   const [apps, setApps] = useState<any[]>([]);
+  const [confirm, setConfirm] = useState<string | null>(null);
   const { openWindow, closeWindow } = useUIStore();
-  useEffect(() => { api.get<any[]>('/apps').then(setApps).catch(() => {}); }, []);
+
+  const reload = () => api.get<any[]>('/apps').then(setApps).catch(() => {});
+  useEffect(() => { reload(); }, []);
+
+  const openApp = (name: string) => {
+    const w = useUIStore.getState().flowWindows.find(w => w.component === 'app-gallery');
+    if (w) closeWindow(w.id);
+    openWindow('app-preview' as any, name, { appName: name });
+  };
+
+  const deleteApp = async (name: string) => {
+    await api.delete?.(`/apps/${name}`).catch(() =>
+      fetch(`/api/v1/apps/${encodeURIComponent(name)}`, { method: 'DELETE' })
+    );
+    setConfirm(null);
+    reload();
+  };
+
+  const duplicateApp = async (name: string) => {
+    await fetch(`/api/v1/apps/${encodeURIComponent(name)}/duplicate`, { method: 'POST' });
+    reload();
+  };
+
+  const editApp = (name: string) => {
+    // Open builder with app name as prompt to modify
+    openWindow('builder' as any, 'Builder — Modifica App', {
+      autoStart: {
+        prompt: `Modifica e migliora l'app esistente chiamata "${name}". Mantieni la struttura base ma aggiorna il design, aggiungi funzionalità mancanti e correggi eventuali problemi.`,
+        style: 'dark-futuristic',
+        colors: 'auto',
+        layout: 'auto',
+        features: `Modifica dell'app "${name}"`,
+        tech: 'auto',
+      }
+    });
+  };
+
+  const btn = (label: string, color: string, onClick: () => void, title?: string) => (
+    <button
+      onClick={e => { e.stopPropagation(); onClick(); }}
+      title={title || label}
+      style={{
+        padding: '4px 9px', borderRadius: 6, border: 'none', cursor: 'pointer',
+        background: `rgba(${color},0.12)`, color: `rgb(${color})`,
+        fontSize: 11, fontWeight: 600, transition: 'background 0.15s',
+      }}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = `rgba(${color},0.25)`; }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = `rgba(${color},0.12)`; }}
+    >{label}</button>
+  );
 
   return (
     <div style={{ padding: 20, color: 'var(--text-primary)' }}>
       <h3 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 16px', color: 'rgba(224,230,240,0.9)' }}>Le tue App</h3>
-      {apps.length === 0 ? <div style={{ fontSize: 12, color: 'rgba(224,230,240,0.3)', padding: 20, textAlign: 'center' }}>Nessuna app</div> : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {apps.map(a => (
-            <div key={a.name} onClick={() => {
-              const w = useUIStore.getState().flowWindows.find(w => w.component === 'app-gallery');
-              if (w) closeWindow(w.id);
-              openWindow('app-preview' as any, a.name, { appName: a.name });
-            }} style={{
-              padding: '12px 16px', borderRadius: 10, cursor: 'pointer',
-              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)',
-              display: 'flex', alignItems: 'center', gap: 10, transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { (e.currentTarget).style.background = 'rgba(255,255,255,0.06)'; }}
-            onMouseLeave={e => { (e.currentTarget).style.background = 'rgba(255,255,255,0.03)'; }}>
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: a.running ? '#10b981' : '#555' }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(224,230,240,0.9)' }}>{a.name}</div>
+      {apps.length === 0
+        ? <div style={{ fontSize: 12, color: 'rgba(224,230,240,0.3)', padding: 20, textAlign: 'center' }}>Nessuna app — creane una dal Builder</div>
+        : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {apps.map(a => (
+              <div key={a.name} style={{
+                borderRadius: 10, background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden',
+              }}>
+                {/* Row */}
+                <div
+                  onClick={() => openApp(a.name)}
+                  style={{ padding: '11px 14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10 }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = ''; }}
+                >
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: a.running ? '#10b981' : '#555' }} />
+                  <div style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'rgba(224,230,240,0.9)' }}>{a.name}</div>
+                  {a.running && <span style={{ fontSize: 9, color: '#10b981', marginRight: 6 }}>LIVE</span>}
+
+                  {/* Action buttons */}
+                  <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
+                    {btn('Apri', '99,179,237', () => openApp(a.name), 'Apri anteprima')}
+                    {btn('Modifica', '167,139,250', () => editApp(a.name), 'Riapri builder per modificarla')}
+                    {btn('Duplica', '52,211,153', () => duplicateApp(a.name), 'Crea copia')}
+                    {btn('Elimina', '239,68,68', () => setConfirm(a.name), 'Elimina app')}
+                  </div>
+                </div>
+
+                {/* Confirm delete */}
+                {confirm === a.name && (
+                  <div style={{ padding: '8px 14px', background: 'rgba(239,68,68,0.08)', borderTop: '1px solid rgba(239,68,68,0.2)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 12, color: 'rgba(239,68,68,0.9)', flex: 1 }}>Eliminare "{a.name}" definitivamente?</span>
+                    <button onClick={() => deleteApp(a.name)} style={{ padding: '4px 12px', borderRadius: 6, border: 'none', background: 'rgba(239,68,68,0.8)', color: '#fff', fontSize: 11, cursor: 'pointer', fontWeight: 600 }}>Elimina</button>
+                    <button onClick={() => setConfirm(null)} style={{ padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.1)', background: 'none', color: 'rgba(224,230,240,0.5)', fontSize: 11, cursor: 'pointer' }}>Annulla</button>
+                  </div>
+                )}
               </div>
-              {a.running && <span style={{ fontSize: 9, color: '#10b981' }}>LIVE</span>}
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )
+      }
     </div>
   );
 }

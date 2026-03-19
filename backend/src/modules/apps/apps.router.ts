@@ -46,6 +46,35 @@ router.get('/running', (_req, res) => {
   res.json(service.getRunningApps());
 });
 
+// Delete app
+router.delete('/:name', (req, res) => {
+  try {
+    const appPath = path.join(config.appsDir, req.params.name);
+    const fs = require('fs');
+    if (!fs.existsSync(appPath)) return res.status(404).json({ error: 'App non trovata' });
+    service.stopApp(req.params.name);
+    fs.rmSync(appPath, { recursive: true, force: true });
+    res.json({ deleted: true });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Duplicate app
+router.post('/:name/duplicate', (req, res) => {
+  try {
+    const fs = require('fs');
+    const srcPath = path.join(config.appsDir, req.params.name);
+    if (!fs.existsSync(srcPath)) return res.status(404).json({ error: 'App non trovata' });
+    const newName = `${req.params.name}_copy_${Date.now()}`;
+    const destPath = path.join(config.appsDir, newName);
+    fs.cpSync(srcPath, destPath, { recursive: true });
+    res.json({ name: newName, path: destPath });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Serve app files statically (for iframe preview)
 router.use('/:name/serve', (req, res, next) => {
   const appPath = path.join(config.appsDir, req.params.name);
