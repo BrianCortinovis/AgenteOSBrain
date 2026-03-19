@@ -44,19 +44,15 @@
       "bin/node",
       "bin/better_sqlite3.node",
       "bin/build/Release/better_sqlite3.node",
-      "bin/migrations/*"
+      "bin/migrations/*",
+      "bin/data/*.db",
+      "bin/data/*.json",
+      "bin/data/agent-templates/*.json"
     ]
   },
   "plugins": {
     "shell": {
-      "open": true,
-      "scope": [
-        {
-          "name": "node",
-          "cmd": "node",
-          "args": true
-        }
-      ]
+      "open": true
     }
   }
 }

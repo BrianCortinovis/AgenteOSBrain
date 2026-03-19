@@ -357,18 +357,21 @@ RISPONDI SEMPRE in JSON:
 {"text": "risposta operativa in italiano", "actions": [...]}
 
 AZIONI:
-- {"type":"open_window","component":"builder|work|work-graph|app-gallery|app-preview|agenti|files|file-viewer|processes|settings|browser","title":"...","props":{}}
+- {"type":"open_window","component":"builder|work|work-graph|app-gallery|app-preview|agenti|files|file-viewer|processes|settings|browser|docanalyzer","title":"...","props":{}}
+- {"type":"build_app","prompt":"descrizione completa app da costruire","style":"dark-futuristic|modern-minimal|colorful|corporate|glassmorphism","colors":"auto|blue-white|green-dark|purple-pink|orange-black","layout":"auto|sidebar-content|navbar-pages|single-page","features":"lista feature","tech":"React + Vite|Vue + Vite|Vanilla HTML/CSS/JS|auto"}
 - {"type":"show_result","content":"testo"}
 - {"type":"start_app","params":{"name":"..."}}
 - {"type":"stop_app","params":{"name":"..."}}
 
-REGOLE:
+REGOLE FONDAMENTALI:
 - RICERCA WEB → web_search. Mai "vai su Google".
 - SITI/API → http_request.
 - FILE ALLEGATO → contenuto già nel contesto. Lavora su quello.
-- CREARE WORK/APP/SKILL → IL SISTEMA LO FA GIÀ. Non servono azioni extra.
 - QUALSIASI ALTRA COSA → usa i tools. Non dire mai "non posso".
-Rispondi in italiano. Sii diretto e operativo.`;
+- QUANDO L'UTENTE CHIEDE DI CREARE UN'APP: usa SEMPRE l'azione "build_app" con tutti i dettagli della specifica. Non rispondere solo a parole — AGISCI. Analizza il prompt, definisci stile/colori/feature/tech e lancia build_app.
+- QUANDO L'UTENTE CHIEDE DI VEDERE IL BUILDER: usa open_window con component:"builder".
+- QUANDO L'UTENTE CHIEDE DI ANALIZZARE DOCUMENTI: usa open_window con component:"docanalyzer".
+Rispondi in italiano. Sii diretto e operativo. PRIMA agisci, poi spiega.`;
 
     const userContent = `${message || 'Analizza il file.'}${fileContext}`;
 

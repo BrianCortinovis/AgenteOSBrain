@@ -16,7 +16,7 @@ import TimelineView from './components/timeline/TimelineView';
 import WorkspaceSettings from './components/workspace/WorkspaceSettings';
 import DashboardPanel from './components/workspace/DashboardPanel';
 import ProjectBuilder from './components/builder/ProjectBuilder';
-import IAOSDesktop from './components/iaos/IAOSDesktop';
+import FlowDesktop from './components/iaos/IAOSDesktop';
 import PopupWindow from './components/iaos/PopupWindow';
 
 function App() {
@@ -29,13 +29,13 @@ function App() {
   const currentView = useUIStore(s => s.currentView);
   const chatOpen = useUIStore(s => s.chatOpen);
   const inspectorOpen = useUIStore(s => s.inspectorOpen);
-  const iaosMode = useUIStore(s => s.iaosMode);
+  const flowMode = useUIStore(s => s.flowMode);
 
   useEffect(() => { loadProjects(); }, []);
 
-  // IAOS mode — full screen AI OS desktop
-  if (iaosMode) {
-    return <IAOSDesktop />;
+  // FLOW mode — full screen AI OS desktop
+  if (flowMode) {
+    return <FlowDesktop />;
   }
 
   const renderMainContent = () => {

@@ -86,7 +86,7 @@ export default function Sidebar() {
           return (
             <button
               key={item.id}
-              onClick={() => isFlow ? useUIStore.getState().setIaosMode(true) : setView(item.id as any)}
+              onClick={() => isFlow ? useUIStore.getState().setFlowMode(true) : setView(item.id as any)}
               title={item.label}
               style={{
                 width: 58, height: 54,

@@ -29,7 +29,7 @@ const typeIcons: Record<string, string> = {
 function getIcon(e: FileEntry) { return e.isDirectory ? '📁' : (typeIcons[e.type] || '📄'); }
 function fmtSize(b: number) { return b < 1024 ? `${b}B` : b < 1048576 ? `${(b/1024).toFixed(1)}K` : `${(b/1048576).toFixed(1)}M`; }
 
-export default function IAOSFileManager() {
+export default function FlowFileManager() {
   const [currentPath, setCurrentPath] = useState('');
   const [entries, setEntries] = useState<FileEntry[]>([]);
   const [recentFiles, setRecentFiles] = useState<any[]>([]);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../api/client';
 
-export default function IAOSProcessPanel() {
+export default function FlowProcessPanel() {
   const [apps, setApps] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
 
@@ -31,8 +31,8 @@ export default function IAOSProcessPanel() {
         {projects.length === 0 ? (
           <div style={{ fontSize: 12, color: 'rgba(224,230,240,0.3)', padding: 8 }}>Nessuno</div>
         ) : projects.map(p => (
-          <div key={p.id} className="iaos-process-item">
-            <span className="iaos-statusbar-dot" style={{ background: p.status === 'in_pausa' ? '#f59e0b' : '#3b82f6' }} />
+          <div key={p.id} className="flow-process-item">
+            <span className="flow-statusbar-dot" style={{ background: p.status === 'in_pausa' ? '#f59e0b' : '#3b82f6' }} />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600 }}>{p.name}</div>
               <div style={{ fontSize: 10, color: 'rgba(224,230,240,0.4)' }}>{p.status}</div>
@@ -55,8 +55,8 @@ export default function IAOSProcessPanel() {
         {runningApps.length === 0 ? (
           <div style={{ fontSize: 12, color: 'rgba(224,230,240,0.3)', padding: 8 }}>Nessuna</div>
         ) : runningApps.map(a => (
-          <div key={a.name} className="iaos-process-item">
-            <span className="iaos-statusbar-dot" />
+          <div key={a.name} className="flow-process-item">
+            <span className="flow-statusbar-dot" />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13, fontWeight: 600 }}>{a.name}</div>
               <div style={{ fontSize: 10, color: 'rgba(224,230,240,0.4)' }}>:{a.port}</div>
@@ -85,8 +85,8 @@ export default function IAOSProcessPanel() {
           Tutte le App ({apps.length})
         </div>
         {apps.map(a => (
-          <div key={a.name} className="iaos-process-item">
-            <span className="iaos-statusbar-dot" style={{ background: a.running ? '#10b981' : '#555' }} />
+          <div key={a.name} className="flow-process-item">
+            <span className="flow-statusbar-dot" style={{ background: a.running ? '#10b981' : '#555' }} />
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 13 }}>{a.name}</div>
             </div>

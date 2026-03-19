@@ -1,9 +1,9 @@
 import { useUIStore } from '../../stores/useUIStore';
-import IAOSStatusBar, { flowSelectedProvider, flowSelectedModel } from './IAOSStatusBar';
-import IAOSDock from './IAOSDock';
-import IAOSWindow from './IAOSWindow';
-import IAOSProcessPanel from './IAOSProcessPanel';
-import IAOSFileManager from './IAOSFileManager';
+import FlowStatusBar, { flowSelectedProvider, flowSelectedModel } from './IAOSStatusBar';
+import FlowDock from './IAOSDock';
+import FlowWindow from './IAOSWindow';
+import FlowProcessPanel from './IAOSProcessPanel';
+import FlowFileManager from './IAOSFileManager';
 import GraphCanvas from '../graph/GraphCanvas';
 import ProjectBuilder from '../builder/ProjectBuilder';
 import AgentPanel from '../agents/AgentPanel';
@@ -14,6 +14,7 @@ import OutputViewer from '../outputs/OutputViewer';
 import TimelineView from '../timeline/TimelineView';
 import ConnectorBrowser from '../connectors/ConnectorBrowser';
 import BrianMap from './BrianMap';
+import DocumentAnalyzer from './DocumentAnalyzer';
 import { useProjectStore } from '../../stores/useProjectStore';
 import { useGraphStore } from '../../stores/useGraphStore';
 import { useChatStore } from '../../stores/useChatStore';
@@ -32,7 +33,7 @@ function WorkProjectsList() {
     setCurrentProject(p.id);
     loadGraph(p.id);
     loadHistory(p.id);
-    const listWin = useUIStore.getState().iaosWindows.find(w => w.component === 'work');
+    const listWin = useUIStore.getState().flowWindows.find(w => w.component === 'work');
     if (listWin) closeWindow(listWin.id);
     openWindow('work-graph' as any, `WORK: ${p.name}`, { projectId: p.id });
   };
@@ -80,7 +81,7 @@ function AppsList() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           {apps.map(a => (
             <div key={a.name} onClick={() => {
-              const w = useUIStore.getState().iaosWindows.find(w => w.component === 'app-gallery');
+              const w = useUIStore.getState().flowWindows.find(w => w.component === 'app-gallery');
               if (w) closeWindow(w.id);
               openWindow('app-preview' as any, a.name, { appName: a.name });
             }} style={{
@@ -106,7 +107,7 @@ function AppsList() {
 // ─── Window Content Router ─────────────────────────────────────
 function WindowContent({ component, props }: { component: string; props?: Record<string, any> }) {
   switch (component) {
-    case 'builder': return <ProjectBuilder />;
+    case 'builder': return <ProjectBuilder autoStart={props?.autoStart} />;
     case 'work': return <WorkProjectsList />;
     case 'work-graph': {
       // Load the project before rendering the graph
@@ -133,7 +134,7 @@ function WindowContent({ component, props }: { component: string; props?: Record
       const appName = props?.appName || '';
       return <iframe src={`/api/v1/apps/${appName}/serve/index.html`} style={{ width: '100%', height: '100%', border: 'none', background: 'white' }} title={appName} />;
     }
-    case 'files': return <IAOSFileManager />;
+    case 'files': return <FlowFileManager />;
     case 'file-viewer': {
       const filePath = props?.filePath || '';
       const fileName = props?.fileName || 'File';
@@ -145,13 +146,14 @@ function WindowContent({ component, props }: { component: string; props?: Record
       return <div style={{ padding: 16, height: '100%', overflow: 'auto' }}><pre style={{ fontSize: 12, fontFamily: 'monospace', whiteSpace: 'pre-wrap', color: '#c9d1d9', lineHeight: 1.6 }}>{props?.content || `File: ${filePath}`}</pre></div>;
     }
     case 'connettori': return <ConnectorBrowser />;
-    case 'processes': return <IAOSProcessPanel />;
+    case 'processes': return <FlowProcessPanel />;
     case 'settings': return <ProviderSettings />;
     case 'agenti': return <FlowAgentsView />;
     case 'browser': {
       const bUrl = props?.url || '';
       return <FlowBrowser initialUrl={bUrl} />;
     }
+    case 'docanalyzer': return <DocumentAnalyzer />;
     case 'risultati': return <OutputViewer />;
     case 'timeline': return <TimelineView />;
     case 'brianmap': return null; // rendered as fullscreen overlay separately
@@ -165,8 +167,8 @@ type LogEntry = { role: 'user' | 'flow' | 'action'; content: string; actionData?
 // ═══════════════════════════════════════════════════════════════
 // MAIN DESKTOP
 // ═══════════════════════════════════════════════════════════════
-export default function IAOSDesktop() {
-  const { iaosWindows, openWindow } = useUIStore();
+export default function FlowDesktop() {
+  const { flowWindows, openWindow } = useUIStore();
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -273,7 +275,7 @@ export default function IAOSDesktop() {
   }, [isRecording]);
 
   return (
-    <div className="iaos-desktop" style={{ background: 'var(--bg-primary, #0f1219)' }}>
+    <div className="flow-desktop" style={{ background: 'var(--bg-primary, #0f1219)' }}>
       {/* Grid pattern */}
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.02) 1px, transparent 0)', backgroundSize: '40px 40px', pointerEvents: 'none' }} />
 
@@ -333,18 +335,18 @@ export default function IAOSDesktop() {
       </div>
 
       {/* Status Bar */}
-      <IAOSStatusBar />
+      <FlowStatusBar />
 
       {/* Windows */}
-      {iaosWindows.filter(w => w.component !== 'brianmap').map(win => (
-        <IAOSWindow key={win.id} win={win}>
+      {flowWindows.filter(w => w.component !== 'brianmap').map(win => (
+        <FlowWindow key={win.id} win={win}>
           <WindowContent component={win.component} props={win.props} />
-        </IAOSWindow>
+        </FlowWindow>
       ))}
 
       {/* BrianMap — full-screen overlay */}
-      {iaosWindows.some(w => w.component === 'brianmap' && !w.minimized) && (() => {
-        const bmWin = iaosWindows.find(w => w.component === 'brianmap')!;
+      {flowWindows.some(w => w.component === 'brianmap' && !w.minimized) && (() => {
+        const bmWin = flowWindows.find(w => w.component === 'brianmap')!;
         return (
           <BrianMap
             onOpenWindow={(c, t) => openWindow(c as any, t)}
@@ -461,7 +463,7 @@ export default function IAOSDesktop() {
         </div>
       </div>
 
-      {/* Minimized windows — mostrate nella topbar (vedi IAOSStatusBar) */}
+      {/* Minimized windows — mostrate nella topbar (vedi FlowStatusBar) */}
 
       {/* Dock rimosso — items nella topbar */}
 

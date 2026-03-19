@@ -1,5 +1,5 @@
 import { useRef, useCallback, useState } from 'react';
-import { useUIStore, IAOSWindow as WinType } from '../../stores/useUIStore';
+import { useUIStore, FlowWindow as WinType } from '../../stores/useUIStore';
 
 type Props = {
   win: WinType;
@@ -17,7 +17,7 @@ function buildPopupUrl(win: WinType): string {
   return `/?${params.toString()}`;
 }
 
-export default function IAOSWindow({ win, children }: Props) {
+export default function FlowWindow({ win, children }: Props) {
   const { closeWindow, minimizeWindow, focusWindow, moveWindow, resizeWindow } = useUIStore();
 
   const handlePopOut = (e: React.MouseEvent) => {

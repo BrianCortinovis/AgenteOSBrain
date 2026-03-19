@@ -5,8 +5,8 @@ import { api } from '../../api/client';
 type Message = { role: 'user' | 'assistant' | 'result'; content: string };
 type FlowAction = { type: string; component?: string; title?: string; props?: any; content?: string; params?: any };
 
-export default function IAOSChat() {
-  const { iaosChatOpen, openWindow } = useUIStore();
+export default function FlowChat() {
+  const { flowChatOpen, openWindow } = useUIStore();
   const [messages, setMessages] = useState<Message[]>([
     { role: 'assistant', content: 'FLOW attivo. Chiedimi qualsiasi cosa.' },
   ]);
@@ -59,6 +59,19 @@ export default function IAOSChat() {
           if (action.params?.name) {
             api.post('/projects', { name: action.params.name, description: action.params.description || '' }).catch(() => {});
           }
+          break;
+        case 'build_app':
+          // Open builder window with auto-start configuration
+          openWindow('builder' as any, 'Builder', {
+            autoStart: {
+              prompt: (action as any).prompt || '',
+              style: (action as any).style,
+              colors: (action as any).colors,
+              layout: (action as any).layout,
+              features: (action as any).features,
+              tech: (action as any).tech,
+            }
+          });
           break;
       }
     }
@@ -131,18 +144,18 @@ export default function IAOSChat() {
 
   return (
     <div
-      className={`iaos-chat ${iaosChatOpen ? '' : 'hidden'}`}
+      className={`flow-chat ${flowChatOpen ? '' : 'hidden'}`}
       onDragOver={e => e.preventDefault()}
       onDrop={handleDrop}
     >
       {/* Header */}
-      <div className="iaos-chat-header">
+      <div className="flow-chat-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="iaos-statusbar-dot" />
+          <span className="flow-statusbar-dot" />
           <span style={{ fontSize: 13, fontWeight: 700, color: '#e0e6f0' }}>FLOW</span>
         </div>
         <button
-          onClick={() => useUIStore.getState().toggleIaosChat()}
+          onClick={() => useUIStore.getState().toggleFlowChat()}
           style={{ background: 'none', border: 'none', color: 'rgba(224,230,240,0.4)', cursor: 'pointer', fontSize: 16 }}
         >
           x
@@ -150,11 +163,11 @@ export default function IAOSChat() {
       </div>
 
       {/* Messages */}
-      <div className="iaos-chat-messages">
+      <div className="flow-chat-messages">
         {messages.map((msg, i) => (
           <div key={i} className={
-            msg.role === 'user' ? 'iaos-msg-user' :
-            msg.role === 'result' ? 'iaos-msg-result' : 'iaos-msg-assistant'
+            msg.role === 'user' ? 'flow-msg-user' :
+            msg.role === 'result' ? 'flow-msg-result' : 'flow-msg-assistant'
           } style={msg.role === 'result' ? {
             alignSelf: 'stretch',
             background: 'rgba(16,185,129,0.08)',
@@ -172,8 +185,8 @@ export default function IAOSChat() {
           </div>
         ))}
         {loading && (
-          <div className="iaos-msg-assistant" style={{ opacity: 0.5 }}>
-            <span style={{ animation: 'iaos-pulse 1.5s infinite' }}>Elaborazione...</span>
+          <div className="flow-msg-assistant" style={{ opacity: 0.5 }}>
+            <span style={{ animation: 'flow-pulse 1.5s infinite' }}>Elaborazione...</span>
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -195,8 +208,8 @@ export default function IAOSChat() {
       )}
 
       {/* Input */}
-      <div className="iaos-chat-input-area">
-        <button className="iaos-mic-btn" onClick={() => fileInputRef.current?.click()} title="Carica file"
+      <div className="flow-chat-input-area">
+        <button className="flow-mic-btn" onClick={() => fileInputRef.current?.click()} title="Carica file"
           style={{ color: pendingFile ? 'rgba(255,180,80,0.8)' : undefined }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
@@ -204,20 +217,20 @@ export default function IAOSChat() {
         </button>
         <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={e => handleFileSelect(e.target.files)} />
 
-        <button className={`iaos-mic-btn ${isRecording ? 'recording' : ''}`} onClick={toggleRecording}>
+        <button className={`flow-mic-btn ${isRecording ? 'recording' : ''}`} onClick={toggleRecording}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill={isRecording ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
             <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
             <path d="M19 10v2a7 7 0 01-14 0v-2"/>
           </svg>
         </button>
 
-        <input className="iaos-chat-input" value={input}
+        <input className="flow-chat-input" value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
           placeholder={isRecording ? 'Sto ascoltando...' : pendingFile ? 'Cosa vuoi fare con il file?' : 'Chiedi qualsiasi cosa...'}
           disabled={loading}
         />
-        <button className="iaos-send-btn" onClick={handleSend} disabled={(!input.trim() && !pendingFile) || loading}>
+        <button className="flow-send-btn" onClick={handleSend} disabled={(!input.trim() && !pendingFile) || loading}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>
           </svg>

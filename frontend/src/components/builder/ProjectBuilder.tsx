@@ -16,13 +16,15 @@ type AppDetail = {
   url: string;
 };
 
-export default function ProjectBuilder() {
+type AutoBuild = { prompt: string; style?: string; colors?: string; layout?: string; features?: string; tech?: string; };
+
+export default function ProjectBuilder({ autoStart }: { autoStart?: AutoBuild }) {
   const currentProjectId = useProjectStore(s => s.currentProjectId);
 
   // App state
   const [selectedApp, setSelectedApp] = useState<string | null>(null);
   const [appDetail, setAppDetail] = useState<AppDetail | null>(null);
-  const [showWizard, setShowWizard] = useState(false);
+  const [showWizard, setShowWizard] = useState(!!autoStart);
   const [showBuildProcess, setShowBuildProcess] = useState(false);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState('');
@@ -88,6 +90,7 @@ export default function ProjectBuilder() {
       <BuilderWizard
         onComplete={(appName) => { setShowWizard(false); setSelectedApp(appName); }}
         onCancel={() => setShowWizard(false)}
+        autoStart={autoStart}
       />
     );
   }

@@ -1,5 +1,5 @@
 /**
- * PopupWindow — standalone full-screen render of any IAOS component.
+ * PopupWindow — standalone full-screen render of any FLOW component.
  * Opened via: /?popup=1&component=work-graph&title=...&props=JSON
  * Designed for multi-monitor setups.
  */
@@ -7,10 +7,10 @@ import { useEffect, useState } from 'react';
 import { useProjectStore } from '../../stores/useProjectStore';
 import { useGraphStore } from '../../stores/useGraphStore';
 import { useChatStore } from '../../stores/useChatStore';
-import IAOSFileManager from './IAOSFileManager';
+import FlowFileManager from './IAOSFileManager';
 import FlowAgentsView from './FlowAgentsView';
 import FlowBrowser from './FlowBrowser';
-import IAOSProcessPanel from './IAOSProcessPanel';
+import FlowProcessPanel from './IAOSProcessPanel';
 import GraphCanvas from '../graph/GraphCanvas';
 import ConnectorBrowser from '../connectors/ConnectorBrowser';
 import ProjectBuilder from '../builder/ProjectBuilder';
@@ -47,10 +47,10 @@ function PopupContent({ component, props }: { component: string; props: Record<s
     case 'builder': return <ProjectBuilder />;
     case 'work':
     case 'work-graph': return <GraphCanvas />;
-    case 'files': return <IAOSFileManager />;
+    case 'files': return <FlowFileManager />;
     case 'agenti': return <FlowAgentsView />;
     case 'connettori': return <ConnectorBrowser />;
-    case 'processes': return <IAOSProcessPanel />;
+    case 'processes': return <FlowProcessPanel />;
     case 'settings': return <ProviderSettings />;
     case 'risultati': return <OutputViewer />;
     case 'browser': return <FlowBrowser initialUrl={props.url || ''} />;

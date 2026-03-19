@@ -22,16 +22,16 @@ const titleMap: Record<string, string> = {
   settings: 'Impostazioni',
 };
 
-export default function IAOSDock() {
-  const { openWindow, toggleIaosChat, iaosChatOpen } = useUIStore();
+export default function FlowDock() {
+  const { openWindow, toggleFlowChat, flowChatOpen } = useUIStore();
 
   return (
-    <div className="iaos-dock">
+    <div className="flow-dock">
 
       {dockItems.map(item => (
         <button
           key={item.id}
-          className="iaos-dock-item"
+          className="flow-dock-item"
           onClick={() => openWindow(item.id as any, titleMap[item.id] || item.label)}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -43,10 +43,10 @@ export default function IAOSDock() {
 
       <div style={{ width: 1, height: 32, background: 'rgba(255,255,255,0.08)' }} />
 
-      {/* Exit IAOS */}
+      {/* Exit FLOW */}
       <button
-        className="iaos-dock-item"
-        onClick={() => useUIStore.getState().setIaosMode(false)}
+        className="flow-dock-item"
+        onClick={() => useUIStore.getState().setFlowMode(false)}
         style={{ color: 'rgba(239,68,68,0.6)' }}
       >
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

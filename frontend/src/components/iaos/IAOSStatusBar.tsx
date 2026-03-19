@@ -15,19 +15,20 @@ const dockItems = [
   { id: 'browser', label: 'Browser', icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-1.95.7-3.74 1.87-5.13L12 12l-6.13 5.13A7.96 7.96 0 014 12z' },
   { id: 'settings', label: 'Settings', icon: 'M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z M12 8a4 4 0 100 8 4 4 0 000-8z' },
   { id: 'brianmap', label: 'Brain', icon: 'M12 2C8 2 5 5 5 9c0 2 .8 3.8 2 5l-2 4h14l-2-4c1.2-1.2 2-3 2-5 0-4-3-7-7-7z M9 9c0-1.7 1.3-3 3-3s3 1.3 3 3 M8 14h8' },
+  { id: 'docanalyzer', label: 'DocAI', icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8' },
 ] as const;
 
 const titleMap: Record<string, string> = {
   builder: 'Builder', work: 'WORK', 'app-gallery': 'App', files: 'File Manager',
   connettori: 'Connettori', agenti: 'Agenti', processes: 'Processi', browser: 'Browser',
-  settings: 'Impostazioni', brianmap: 'BrianMap',
+  settings: 'Impostazioni', brianmap: 'BrianMap', docanalyzer: 'Doc Analyzer',
 };
 
-// Exported so IAOSDesktop can access selected model
+// Exported so FlowDesktop can access selected model
 export let flowSelectedProvider = 'openai';
 export let flowSelectedModel = 'gpt-4o';
 
-export default function IAOSStatusBar() {
+export default function FlowStatusBar() {
   const [time, setTime] = useState(new Date());
   const [stats, setStats] = useState({ apps: 0, providers: 0 });
   const [providers, setProviders] = useState<ProviderInfo[]>([]);
@@ -83,7 +84,7 @@ export default function IAOSStatusBar() {
           onClick={() => {
             // Close BrainMap if open when clicking any other section
             if (item.id !== 'brianmap') {
-              const bmWin = useUIStore.getState().iaosWindows.find(w => w.component === 'brianmap');
+              const bmWin = useUIStore.getState().flowWindows.find(w => w.component === 'brianmap');
               if (bmWin) useUIStore.getState().closeWindow(bmWin.id);
             }
             openWindow(item.id as any, titleMap[item.id] || item.label);
@@ -107,7 +108,7 @@ export default function IAOSStatusBar() {
 
       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 4, marginLeft: 8, overflow: 'hidden' }}>
         {/* Minimized windows in topbar */}
-        {useUIStore.getState().iaosWindows.filter(w => w.minimized).map(w => (
+        {useUIStore.getState().flowWindows.filter(w => w.minimized).map(w => (
           <button key={w.id}
             onClick={() => useUIStore.getState().focusWindow(w.id)}
             style={{
@@ -158,7 +159,7 @@ export default function IAOSStatusBar() {
             <option key={m.id} value={m.id} style={{ background: '#1a1d28' }}>{m.name}</option>
           ))}
         </select>
-        <span className={`iaos-statusbar-dot ${currentProvider?.available ? '' : 'error'}`} />
+        <span className={`flow-statusbar-dot ${currentProvider?.available ? '' : 'error'}`} />
       </div>
 
       {/* Stats */}
@@ -172,7 +173,7 @@ export default function IAOSStatusBar() {
 
       {/* Exit FLOW */}
       <button
-        onClick={() => useUIStore.getState().setIaosMode(false)}
+        onClick={() => useUIStore.getState().setFlowMode(false)}
         title="Esci da FLOW"
         style={{
           marginLeft: 8, background: 'none', border: 'none', cursor: 'pointer',

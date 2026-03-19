@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProjectStore } from '../../stores/useProjectStore';
 import { api } from '../../api/client';
 
@@ -85,16 +85,41 @@ const WIZARD_STEPS: WizardStep[] = [
 type Props = {
   onComplete: (appName: string) => void;
   onCancel: () => void;
+  autoStart?: {
+    prompt: string;
+    style?: string;
+    colors?: string;
+    layout?: string;
+    features?: string;
+    tech?: string;
+  };
 };
 
-export default function BuilderWizard({ onComplete, onCancel }: Props) {
+export default function BuilderWizard({ onComplete, onCancel, autoStart }: Props) {
   const { createProject } = useProjectStore();
   const [currentStep, setCurrentStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>(
+    autoStart ? {
+      app_description: autoStart.prompt,
+      style: autoStart.style || 'dark-futuristic',
+      colors: autoStart.colors || 'auto',
+      layout: autoStart.layout || 'auto',
+      features: autoStart.features || 'tutte le funzionalità descritte nel prompt',
+      tech: autoStart.tech || 'auto',
+    } : {}
+  );
   const [customInput, setCustomInput] = useState('');
   const [selectedOptions, setSelectedOptions] = useState<Set<string>>(new Set());
-  const [building, setBuilding] = useState(false);
-  const [buildStatus, setBuildStatus] = useState('');
+  const [building, setBuilding] = useState(!!autoStart);
+  const [buildStatus, setBuildStatus] = useState(autoStart ? 'Avvio build automatica...' : '');
+
+  // Auto-start build when all answers pre-filled
+  useEffect(() => {
+    if (autoStart && building) {
+      handleBuild();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const step = WIZARD_STEPS[currentStep];
   const isLastStep = currentStep === WIZARD_STEPS.length - 1;
