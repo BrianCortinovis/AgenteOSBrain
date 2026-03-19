@@ -42,3 +42,4 @@ desktop-electron/backend-bundle.js
 desktop-electron/definitions/
 desktop-electron/migrations/
 desktop-electron/icons/
+document-analyzer/
