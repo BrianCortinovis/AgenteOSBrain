@@ -345,6 +345,199 @@ ANALISI:
 FORECAST: proiezione a fine periodo se trend continua
 Formato: pronto per presentazione management.`);
 
+// ═══════════════════════════════════════════════════════════════
+//  TRADUZIONE & LINGUE
+// ═══════════════════════════════════════════════════════════════
+console.log('[Skills] Traduzione & Lingue...');
+
+skill('traduzione-professionale', 'Traduzione professionale con adattamento culturale e glossario', 'traduzione',
+`Traduci il testo con qualità professionale:
+1. ANALISI: identifica registro, tono, dominio tecnico
+2. TRADUZIONE: mantieni significato, sfumature e stile
+3. ADATTAMENTO CULTURALE: localizza riferimenti culturali, unità di misura, formati data
+4. GLOSSARIO: se presente terminologia tecnica, crea glossario dei termini chiave
+5. NOTE: segnala ambiguità, giochi di parole non traducibili, scelte traduttive
+Formati supportati: testo libero, HTML, Markdown, JSON (traduce solo i valori).
+Output: testo tradotto + note del traduttore.`);
+
+skill('localizzazione-software', 'Localizzazione UI/UX con glossario tecnico e plurali', 'traduzione',
+`Localizza stringhe software:
+- Traduci mantenendo placeholder ({name}, {{count}}, %s, $t())
+- Gestisci PLURALI secondo le regole della lingua target
+- Mantieni MARKUP HTML/Markdown nelle stringhe
+- GLOSSARIO: crea tabella termine_originale → termine_tradotto
+- LUNGHEZZA: segnala traduzioni significativamente più lunghe (problemi UI)
+- TONO: mantieni consistenza con il prodotto (formale/informale)
+Input accettati: JSON, YAML, PO, XLIFF, stringhe libere.
+Output: file tradotto nello stesso formato + report problemi.`);
+
+// ═══════════════════════════════════════════════════════════════
+//  AUDIO & VIDEO
+// ═══════════════════════════════════════════════════════════════
+console.log('[Skills] Audio & Video...');
+
+skill('trascrizione-meeting', 'Trascrivi e riassumi riunioni da audio/video', 'audio-video',
+`Processa la trascrizione audio/video di una riunione:
+1. PULIZIA: rimuovi filler (uhm, cioè), correggi errori di trascrizione evidenti
+2. SPEAKER: identifica diversi parlanti se possibile (Speaker 1, 2, ...)
+3. STRUTTURA: dividi in sezioni tematiche con timestamp
+4. RIASSUNTO: executive summary 200 parole
+5. DECISIONI: lista di tutte le decisioni prese
+6. AZIONI: chi deve fare cosa, entro quando
+7. DOMANDE APERTE: punti rimasti irrisolti
+Output: verbale strutturato pronto per condivisione.`);
+
+skill('script-video', 'Genera script professionali per video e podcast', 'audio-video',
+`Genera script video/podcast:
+APERTURA: hook nei primi 5 secondi, presentazione
+CORPO: suddiviso in sezioni con timing stimato
+- Per ogni sezione: narrazione + indicazioni visive/B-roll
+- Transizioni tra sezioni
+CHIUSURA: riepilogo, CTA, saluti
+METADATI: titolo, descrizione SEO, tag suggeriti, thumbnail idea
+Adatta al formato: YouTube, TikTok/Reels (verticale, <60s), podcast, webinar.
+Include note di regia e indicazioni per il montaggio.`);
+
+skill('analisi-podcast', 'Estrai key points, citazioni e insight da podcast/interviste', 'audio-video',
+`Dalla trascrizione del podcast estrai:
+1. SINTESI: di cosa si parla in 100 parole
+2. KEY POINTS: 5-10 punti chiave con citazione diretta
+3. CITAZIONI: frasi d'impatto virgolettate con speaker
+4. DATI/NUMERI: tutti i dati quantitativi menzionati
+5. RISORSE: libri, tool, link, persone citate
+6. CONTROVERSIE: opinioni contrastanti o provocatorie
+7. CLIP SOCIALI: 3-5 estratti ottimi per social (max 30 parole ciascuno)
+Output: scheda podcast pronta per newsletter/blog.`);
+
+// ═══════════════════════════════════════════════════════════════
+//  IMMAGINI & DESIGN
+// ═══════════════════════════════════════════════════════════════
+console.log('[Skills] Immagini & Design...');
+
+skill('analisi-design', 'Review UI/UX design da screenshot con feedback dettagliato', 'design',
+`Analizza lo screenshot dell'interfaccia:
+VISUAL DESIGN:
+- Gerarchia visiva, uso dello spazio, allineamenti
+- Palette colori, contrasti, leggibilità
+- Tipografia, dimensioni, spaziatura
+- Consistenza con design system
+UX:
+- Chiarezza delle azioni (CTA, bottoni, link)
+- Feedback visivo (stati, loading, errori)
+- Flusso utente intuibile dallo screenshot
+- Accessibilità (WCAG 2.1 stimata)
+Per ogni problema: screenshot area, issue, soluzione, priorità.`);
+
+skill('genera-prompt-immagine', 'Genera prompt ottimizzati per DALL-E, Midjourney, Stable Diffusion', 'design',
+`Dall'idea dell'utente genera prompt ottimizzati per AI image generation:
+PER DALL-E 3:
+- Prompt dettagliato in inglese (stile, composizione, illuminazione, atmosfera)
+- Negative prompt se applicabile
+PER MIDJOURNEY:
+- Prompt con parametri (--ar, --s, --v, --q)
+- Varianti con stili diversi
+PER STABLE DIFFUSION:
+- Prompt positivo + negativo
+- Suggerimenti per modello/checkpoint
+Per ciascuno: 3 varianti (realistico, artistico, minimalista).
+Include: aspect ratio consigliato, stile artistico, riferimenti.`);
+
+skill('ocr-documento', 'OCR intelligente: estrae e struttura testo da immagini di documenti', 'design',
+`Analizza l'immagine del documento e:
+1. ESTRAZIONE: trascrivi TUTTO il testo visibile nell'immagine
+2. STRUTTURA: identifica il tipo di documento (fattura, carta identità, contratto, ricevuta, modulo)
+3. CAMPI: estrai campi strutturati in base al tipo:
+   - Fattura: numero, data, importi, P.IVA, righe
+   - Documento identità: nome, cognome, nascita, codice fiscale, scadenza
+   - Contratto: parti, date, importi chiave
+   - Ricevuta: esercizio, data, importo, pagamento
+4. QUALITÀ: segnala testo illeggibile o incerto con [?]
+Output: JSON strutturato + testo raw completo.`);
+
+// ═══════════════════════════════════════════════════════════════
+//  DATA SCIENCE
+// ═══════════════════════════════════════════════════════════════
+console.log('[Skills] Data Science...');
+
+skill('analisi-sentimento', 'Sentiment analysis su testi, recensioni, feedback con scoring', 'data-science',
+`Analizza il sentimento dei testi forniti:
+PER OGNI TESTO:
+- Sentimento: POSITIVO / NEGATIVO / NEUTRO / MISTO
+- Score: -1.0 (molto negativo) a +1.0 (molto positivo)
+- Emozioni: gioia, rabbia, tristezza, sorpresa, paura, disgusto
+- Aspetti: cosa è positivo/negativo specificamente
+AGGREGATO:
+- Distribuzione sentimenti (%)
+- Trend se testi sono temporali
+- Word cloud: parole più associate a positivo/negativo
+- Pain points: top 5 lamentele ricorrenti
+- Highlights: top 5 punti di forza
+Output: tabella per testo + analisi aggregata.`);
+
+skill('clustering-testi', 'Raggruppamento automatico di testi simili per topic/intent', 'data-science',
+`Analizza la collezione di testi e:
+1. CLUSTERING: raggruppa per similarità semantica
+2. ETICHETTE: assegna un nome descrittivo a ogni cluster
+3. DISTRIBUZIONE: quanti testi per cluster (%)
+4. RAPPRESENTATIVI: 2-3 testi esempio per cluster
+5. OUTLIER: testi che non rientrano in nessun cluster
+6. GERARCHIA: se possibile, crea sotto-cluster
+APPLICAZIONI: categorizazione ticket, topic modeling, intent detection.
+Output: tabella cluster + distribuzione + esempi.`);
+
+skill('pulizia-dati', 'Data cleaning: normalizza, deduplicata, valida dataset', 'data-science',
+`Analizza il dataset e suggerisci pulizia:
+1. PROFILING: statistiche per ogni colonna, tipi, formati
+2. VALORI MANCANTI: quanti, pattern, strategia (rimozione/imputazione)
+3. DUPLICATI: righe duplicate o quasi-duplicate, criterio matching
+4. FORMATI INCONSISTENTI: date, numeri, stringhe (es. "Milano" vs "MILANO" vs "milano")
+5. OUTLIER: valori anomali con metodo di rilevamento
+6. NORMALIZZAZIONE: suggerisci trasformazioni (encoding categoriche, scaling numerico)
+7. SCRIPT: genera codice Python/SQL per la pulizia
+Output: report problemi + script di pulizia + dataset sample pulito.`);
+
+// ═══════════════════════════════════════════════════════════════
+//  AUTOMAZIONE & PRODUTTIVITA'
+// ═══════════════════════════════════════════════════════════════
+console.log('[Skills] Automazione & Produttivita...');
+
+skill('email-auto-reply', 'Genera risposte email professionali contestuali', 'automazione',
+`Genera risposta email professionale:
+ANALISI EMAIL RICEVUTA:
+- Mittente, oggetto, intent principale
+- Urgenza stimata, tono
+- Richieste/domande specifiche
+RISPOSTA:
+- Tono: adatta a quello del mittente (formale/informale)
+- Struttura: saluto, riferimento email ricevuta, risposta punto per punto, chiusura
+- Include: conferma ricezione, timeline se richiesta, next steps
+VARIANTI: genera 2 versioni (breve e dettagliata)
+Lingua: stessa dell'email ricevuta.`);
+
+skill('social-media-post', 'Genera post ottimizzati per ogni piattaforma social', 'automazione',
+`Dall'argomento genera post per:
+LINKEDIN: professionale, 1300 char, hook, valore, CTA, 3-5 hashtag
+TWITTER/X: max 280 char, conciso, hashtag, thread se necessario
+INSTAGRAM: caption engaging, emoji moderati, 20-30 hashtag in fondo
+FACEBOOK: tono conversazionale, domanda engagement, link
+TIKTOK: script breve, trend-aware, hashtag virali
+Per ogni piattaforma: orario pubblicazione suggerito, formato media consigliato.
+Include: calendario pubblicazione ottimale per la settimana.`);
+
+skill('report-automatico', 'Genera report periodici strutturati da dati grezzi', 'automazione',
+`Genera report periodico professionale:
+INTESTAZIONE: titolo, periodo, autore, data generazione
+EXECUTIVE SUMMARY: 3-5 bullet point con KPI principali
+SEZIONI:
+1. Performance: metriche vs target con grafici testuali
+2. Trend: confronto con periodo precedente
+3. Highlights: successi e risultati notevoli
+4. Criticità: problemi e rischi identificati
+5. Raccomandazioni: azioni suggerite con priorità
+APPENDICE: tabelle dati dettagliati
+Formati: Markdown, HTML (pronto per email), testo semplice.
+Tono: oggettivo, data-driven, orientato alle decisioni.`);
+
 console.log('\n✅ Skills library completata!');
 const count: any = db.prepare('SELECT COUNT(*) as cnt FROM skills').get();
 console.log(`   Totale skills installate: ${count.cnt}\n`);

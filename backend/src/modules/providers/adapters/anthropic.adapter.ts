@@ -1,4 +1,4 @@
-import { ProviderAdapter } from '../providers.types';
+import { ProviderAdapter, ChatOptions } from '../providers.types';
 import { config } from '../../../config';
 import { callClaudeCLI, chatClaudeCLI, checkClaudeCLI } from './claude-bridge';
 
@@ -24,7 +24,7 @@ export class AnthropicAdapter implements ProviderAdapter {
 
   get mode(): AnthropicMode { return currentMode; }
 
-  async chat(messages: { role: string; content: string }[], model: string, options?: { temperature?: number; max_tokens?: number }) {
+  async chat(messages: { role: string; content: string }[], model: string, options?: ChatOptions) {
     if (currentMode === 'claude_cli') {
       return this.chatViaCLI(messages);
     }
@@ -41,9 +41,19 @@ export class AnthropicAdapter implements ProviderAdapter {
     };
   }
 
-  private async chatViaAPI(messages: { role: string; content: string }[], model: string, options?: { temperature?: number; max_tokens?: number }) {
+  private async chatViaAPI(messages: { role: string; content: string }[], model: string, options?: ChatOptions) {
     const systemMsg = messages.find(m => m.role === 'system');
     const chatMessages = messages.filter(m => m.role !== 'system');
+
+    const body: any = {
+      model: model || 'claude-sonnet-4-20250514',
+      max_tokens: options?.max_tokens || 4096,
+      temperature: options?.temperature ?? 0.7,
+      system: systemMsg?.content || '',
+      messages: chatMessages.map(m => ({ role: m.role, content: m.content })),
+    };
+    if (options?.top_p !== undefined) body.top_p = options.top_p;
+    if (options?.stop_sequences?.length) body.stop_sequences = options.stop_sequences;
 
     const res = await fetch(`${this.baseUrl}/messages`, {
       method: 'POST',
@@ -52,16 +62,10 @@ export class AnthropicAdapter implements ProviderAdapter {
         'x-api-key': this.apiKey,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify({
-        model: model || 'claude-sonnet-4-20250514',
-        max_tokens: options?.max_tokens || 4096,
-        temperature: options?.temperature ?? 0.7,
-        system: systemMsg?.content || '',
-        messages: chatMessages.map(m => ({ role: m.role, content: m.content })),
-      }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error(`Anthropic API error: ${res.status} ${await res.text()}`);
-    const data = await res.json();
+    const data: any = await res.json();
     return {
       content: data.content?.[0]?.text || '',
       usage: { prompt_tokens: data.usage?.input_tokens || 0, completion_tokens: data.usage?.output_tokens || 0 },

@@ -56,12 +56,12 @@ export function toGeminiFunctionDeclarations(tools: ToolDefinition[]): any[] {
 
 // ─── Tool Use Loop ──────────────────────────────────────────────
 
-const MAX_TOOL_ROUNDS = 5;
+const MAX_TOOL_ROUNDS = 20;
 
 /**
  * Call AI with tool support. Handles the tool-use loop:
  * 1. Send messages + tools to AI
- * 2. If AI requests tool calls, execute them
+ * 2. If AI requests tool calls (one or multiple), execute them all
  * 3. Feed results back and repeat
  * 4. Return final text response
  */
@@ -97,8 +97,16 @@ Per usare uno strumento, rispondi con un blocco JSON così:
 {"tool": "nome_tool", "params": {parametri}}
 \`\`\`
 
-Puoi usare più strumenti in sequenza. Dopo aver ricevuto i risultati, fornisci la risposta finale.
-Se non hai bisogno di strumenti, rispondi direttamente.`;
+Puoi usare PIÙ strumenti nella stessa risposta, uno dopo l'altro. Ogni blocco tool_call verrà eseguito.
+Dopo aver ricevuto i risultati, puoi usare altri strumenti o fornire la risposta finale.
+Se non hai bisogno di strumenti, rispondi direttamente.
+
+REGOLE FONDAMENTALI:
+- Quando crei file con write_file, scrivi CODICE COMPLETO e FUNZIONANTE, mai placeholder o "TODO".
+- Dopo aver creato file importanti (HTML, componenti, API), usa read_file per VERIFICARE il risultato.
+- Se il file ha errori di sintassi, import mancanti, o contenuto incompleto: CORREGGILO subito con write_file.
+- Se un comando shell_exec fallisce, ANALIZZA l'errore e riprova con la correzione.
+- Non lasciare MAI un file rotto — verifica e correggi prima di passare al prossimo compito.`;
 
   const messages: { role: string; content: string }[] = [];
   if (systemPrompt) messages.push({ role: 'system', content: systemPrompt + toolSystemAddendum });
@@ -106,41 +114,46 @@ Se non hai bisogno di strumenti, rispondi direttamente.`;
   messages.push({ role: 'user', content: userPrompt });
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-    const result = await providerRegistry.chat(providerId, messages, modelId);
+    const result = await providerRegistry.chat(providerId, messages, modelId, { max_tokens: 8192 });
     const content = result.content;
 
-    // Check for tool_call blocks
-    const toolCallMatch = content.match(/```tool_call\s*\n?([\s\S]*?)```/);
-    if (!toolCallMatch) {
+    // Check for ALL tool_call blocks (support multiple in one response)
+    const toolCallRegex = /```tool_call\s*\n?([\s\S]*?)```/g;
+    const matches = [...content.matchAll(toolCallRegex)];
+
+    if (matches.length === 0) {
       // No tool call - this is the final response
       return { content, toolCalls };
     }
 
-    // Parse and execute the tool call
-    try {
-      const callData = JSON.parse(toolCallMatch[1].trim());
-      const toolName = callData.tool || callData.name;
-      const toolParams = callData.params || callData.parameters || {};
+    // Execute all tool calls found in this response
+    const results: string[] = [];
+    for (const match of matches) {
+      try {
+        const callData = JSON.parse(match[1].trim());
+        const toolName = callData.tool || callData.name;
+        const toolParams = callData.params || callData.parameters || {};
 
-      console.log(`[Tools] Esecuzione tool: ${toolName}`, toolParams);
-      const toolResult = await executeTool(toolName, toolParams, context);
+        console.log(`[Tools] Esecuzione tool (round ${round + 1}): ${toolName}`);
+        const toolResult = await executeTool(toolName, toolParams, context);
 
-      toolCalls.push({
-        name: toolName,
-        result: toolResult.success ? toolResult.output : `Errore: ${toolResult.error}`,
-      });
+        toolCalls.push({
+          name: toolName,
+          result: toolResult.success ? toolResult.output.slice(0, 3000) : `Errore: ${toolResult.error}`,
+        });
 
-      // Add the AI response and tool result to messages for next round
-      messages.push({ role: 'assistant', content });
-      messages.push({
-        role: 'user',
-        content: `Risultato dello strumento "${toolName}":\n${toolResult.success ? toolResult.output : `Errore: ${toolResult.error}`}`,
-      });
-    } catch (parseErr: any) {
-      // Failed to parse tool call, treat as final response
-      const cleanContent = content.replace(/```tool_call[\s\S]*?```/g, '').trim();
-      return { content: cleanContent || content, toolCalls };
+        results.push(`[${toolName}] ${toolResult.success ? 'OK' : 'ERRORE'}: ${(toolResult.success ? toolResult.output : toolResult.error || '').slice(0, 2000)}`);
+      } catch (parseErr: any) {
+        results.push(`[parse_error] Errore parsing tool call: ${parseErr.message}`);
+      }
     }
+
+    // Add the AI response and all tool results to messages for next round
+    messages.push({ role: 'assistant', content });
+    messages.push({
+      role: 'user',
+      content: `Risultati degli strumenti eseguiti:\n${results.join('\n\n')}\n\nContinua con il prossimo passo o fornisci la risposta finale.`,
+    });
   }
 
   // Max rounds reached, get final response

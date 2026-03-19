@@ -15,6 +15,7 @@ import { getSoulPrompt } from '../modules/workspace/workspace.service';
 import { buildMemoryContext, extractAndSaveMemories } from '../modules/memory/memory.service';
 import { getToolsByNames, callAIWithTools } from '../modules/tools/tools.service';
 import { executeConnectorAction } from '../modules/connectors/executors/registry';
+import { workspaces } from '../modules/tools/tool-executors';
 
 const execFileAsync = promisify(execFile);
 
@@ -74,6 +75,17 @@ export function resumeProject(projectId: string) {
     return true;
   }
   return false;
+}
+
+export function getWorkspaceInfo(projectId: string) {
+  const ws = workspaces.get(projectId);
+  if (ws) return ws;
+  // Check DB
+  const row: any = db.prepare('SELECT workspace_path, project_type, dev_server_port FROM projects WHERE id = ?').get(projectId);
+  if (row?.workspace_path) {
+    return { path: row.workspace_path, type: row.project_type || '', projectId };
+  }
+  return null;
 }
 
 export function stopProject(projectId: string) {
@@ -901,10 +913,29 @@ export async function executeProject(
     const nodeConfig = parseConfig(node.config);
 
     // Per-agent/node output directory inside the run folder
-    const nodeOutputDir = getAgentDir(runDir, agent?.name || null, node.label);
+    let nodeOutputDir = getAgentDir(runDir, agent?.name || null, node.label);
+
+    // If project has a workspace, use workspace path as working directory for tools
+    const workspace = workspaces.get(projectId);
+    if (workspace?.path && fs.existsSync(workspace.path)) {
+      nodeOutputDir = workspace.path;
+    } else {
+      // Check DB for workspace_path
+      const projRow: any = db.prepare('SELECT workspace_path FROM projects WHERE id = ?').get(projectId);
+      if (projRow?.workspace_path && fs.existsSync(projRow.workspace_path)) {
+        workspaces.set(projectId, { path: projRow.workspace_path, type: '', projectId });
+        nodeOutputDir = projRow.workspace_path;
+      }
+    }
 
     // Resolve agent tools (from agent metadata or empty)
-    const agentTools = parseAgentTools(agent);
+    // Merge tools from agent + node config
+    let agentTools = parseAgentTools(agent);
+    const configTools = Array.isArray(nodeConfig.tools) ? nodeConfig.tools : [];
+    if (configTools.length > 0) {
+      const allTools = new Set([...agentTools, ...configTools]);
+      agentTools = Array.from(allTools);
+    }
 
     try {
       let output = '';
@@ -1011,28 +1042,38 @@ export async function executeProject(
           break;
         }
         case 'automazione': {
-          const cmd = nodeConfig.command || '';
-          if (cmd) {
-            // Check if command requires approval (dangerous patterns)
-            if (isDangerousCommand(cmd) && !nodeConfig.approved) {
-              const approvalId = generateId();
-              db.prepare(
-                `INSERT INTO command_approvals (id, project_id, node_id, command, status)
-                 VALUES (?, ?, ?, ?, 'pending')`
-              ).run(approvalId, projectId, node.id, cmd);
-              output = `Comando in attesa di approvazione: ${cmd}\n[Approval ID: ${approvalId}]`;
-              break;
-            }
-            try {
-              const { stdout, stderr } = await execFileAsync('bash', ['-c', cmd], {
-                timeout: 300000, cwd: nodeOutputDir, env: { ...process.env },
-              });
-              output = stdout + (stderr ? `\nSTDERR: ${stderr}` : '');
-            } catch (err: any) {
-              output = `Errore comando: ${err.message}\n${err.stdout || ''}\n${err.stderr || ''}`;
-            }
+          // If automation node has tools in config, use AI with tools (like init_project, install_deps, etc.)
+          if (agentTools.length > 0) {
+            const fallback = getFallbackModelSelection({ providerId, modelId });
+            const autoProviderId = providerId || fallback.providerId;
+            const autoModelId = modelId || fallback.modelId;
+            const autoPrompt = systemPrompt || node.description || `Esegui l'automazione: ${node.label}`;
+            const taskDescription = `${node.description || node.label}\n\nContesto:\n${inputContext || 'Nessun contesto precedente.'}`;
+            output = await callAIWithToolsWrapper(autoProviderId, autoModelId, autoPrompt, taskDescription, agentTools, projectId, node.id, agent?.id, nodeOutputDir);
           } else {
-            output = `Automazione "${node.label}" eseguita.`;
+            const cmd = nodeConfig.command || '';
+            if (cmd) {
+              // Check if command requires approval (dangerous patterns)
+              if (isDangerousCommand(cmd) && !nodeConfig.approved) {
+                const approvalId = generateId();
+                db.prepare(
+                  `INSERT INTO command_approvals (id, project_id, node_id, command, status)
+                   VALUES (?, ?, ?, ?, 'pending')`
+                ).run(approvalId, projectId, node.id, cmd);
+                output = `Comando in attesa di approvazione: ${cmd}\n[Approval ID: ${approvalId}]`;
+                break;
+              }
+              try {
+                const { stdout, stderr } = await execFileAsync('bash', ['-c', cmd], {
+                  timeout: 300000, cwd: nodeOutputDir, env: { ...process.env },
+                });
+                output = stdout + (stderr ? `\nSTDERR: ${stderr}` : '');
+              } catch (err: any) {
+                output = `Errore comando: ${err.message}\n${err.stdout || ''}\n${err.stderr || ''}`;
+              }
+            } else {
+              output = `Automazione "${node.label}" eseguita.`;
+            }
           }
           break;
         }
@@ -1117,6 +1158,39 @@ export async function executeProject(
   const finalStatus = runningProjects.get(projectId)?.status === 'stopping' ? 'fermato' : 'completato';
   db.prepare('UPDATE projects SET status = ?, updated_at = ? WHERE id = ?').run(finalStatus, new Date().toISOString(), projectId);
   runningProjects.delete(projectId);
+
+  // Auto-detect workspace from tool outputs and save to DB
+  const ws = workspaces.get(projectId);
+  if (ws?.path) {
+    db.prepare('UPDATE projects SET workspace_path = ?, project_type = ? WHERE id = ?')
+      .run(ws.path, ws.type || '', projectId);
+  } else {
+    // Check if files were created in FLOW/Apps during execution
+    const appsDir = config.appsDir;
+    if (fs.existsSync(appsDir)) {
+      const appDirs = fs.readdirSync(appsDir).filter(d => fs.statSync(path.join(appsDir, d)).isDirectory());
+      // Find the most recently modified app dir
+      const recent = appDirs
+        .map(d => ({ name: d, path: path.join(appsDir, d), mtime: fs.statSync(path.join(appsDir, d)).mtimeMs }))
+        .sort((a, b) => b.mtime - a.mtime);
+      if (recent.length > 0 && (Date.now() - recent[0].mtime) < 120000) {
+        db.prepare('UPDATE projects SET workspace_path = ?, project_type = ? WHERE id = ?')
+          .run(recent[0].path, 'app', projectId);
+        workspaces.set(projectId, { path: recent[0].path, type: 'app', projectId });
+
+        // Auto-start dev server for the app
+        try {
+          const { startApp } = await import('../modules/apps/apps.service');
+          const result = startApp(recent[0].name);
+          db.prepare('UPDATE projects SET dev_server_port = ? WHERE id = ?')
+            .run(result.port, projectId);
+          console.log(`[Builder] App auto-avviata: ${recent[0].name} su ${result.url}`);
+        } catch (err: any) {
+          console.log(`[Builder] Auto-start fallito: ${err.message}`);
+        }
+      }
+    }
+  }
 
   return logs;
 }

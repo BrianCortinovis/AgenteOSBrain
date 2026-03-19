@@ -3,7 +3,7 @@ const it: Record<string, string> = {
   'app.subtitle': 'Orchestrazione Agenti IA',
 
   'nav.progetti': 'Progetti',
-  'nav.mappa': 'Mappa',
+  'nav.work': 'WORK',
   'nav.agenti': 'Agenti',
   'nav.automazioni': 'Automazioni',
   'nav.prompt': 'Prompt',

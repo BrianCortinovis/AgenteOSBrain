@@ -47,7 +47,7 @@ type PlannerEdge = {
 };
 
 type WorkflowPlan = {
-  mode?: 'chat' | 'build_project';
+  mode?: 'chat' | 'build_project' | 'build_app';
   assistant_response?: string;
   project?: {
     name?: string;
@@ -163,7 +163,29 @@ function extractJsonObject(content: string): any | null {
   return null;
 }
 
+function getConnectorsContext(): string {
+  try {
+    const { getAllConfiguredInstances, getAllDefinitions } = require('../connectors/connectors.service');
+    const configured: any[] = getAllConfiguredInstances();
+    const definitions: any[] = getAllDefinitions();
+    const lines: string[] = [];
+    if (configured.length > 0) {
+      lines.push(`\nConnettori configurati (${configured.length}):`);
+      configured.forEach(c => {
+        const def = definitions.find((d: any) => d.id === c.connector_id);
+        const actions = def?.actions?.slice(0, 5).map((a: any) => a.id).join(', ') || '';
+        lines.push(`- ${c.name} [id="${c.id}", tipo="${c.connector_id}", stato=${c.status}]${actions ? ' azioni: ' + actions : ''}`);
+      });
+    }
+    if (definitions.length > 0) {
+      lines.push(`\nTipi connettori disponibili: ${definitions.map((d: any) => d.id).join(', ')}`);
+    }
+    return lines.join('\n');
+  } catch { return ''; }
+}
+
 function makeProjectContext(project: any, nodes: any[], agents: any[]) {
+  const connectorsCtx = getConnectorsContext();
   return `Progetto corrente:
 - id: ${project?.id || ''}
 - nome: ${project?.name || 'senza nome'}
@@ -178,7 +200,7 @@ ${agents.map((agent) => {
   const metadata = parseAgentMetadata(agent);
   const capabilities = Array.isArray(metadata.capabilities) ? metadata.capabilities.join(', ') : '';
   return `- id=${agent.id} | nome=${agent.name} | ruolo=${agent.role || 'nessuno'} | provider=${agent.provider_id} | model=${agent.model_id} | summary=${metadata.summary || ''} | capabilities=${capabilities}`;
-}).join('\n') || '- nessuno'}`;
+}).join('\n') || '- nessuno'}${connectorsCtx}`;
 }
 
 function makePlannerSystemPrompt(defaultProviderId: string, defaultModelId: string) {
@@ -238,7 +260,8 @@ Regole:
 - Assegna provider e model per ogni nodo in base al compito, non copiare automaticamente il modello della chat su tutti i nodi.
 - Preferenze operative: analisi immagini/foto/video/OCR -> gemini, ragionamento/valutazione/decisione -> anthropic o openai se Anthropic e solo CLI, generazione codice/html/script/web -> anthropic/claude, salvo motivi migliori nel contesto.
 - Gli agenti possono usare tools: web_search, read_file, write_file, shell_exec, http_request, memory_search, memory_save, connector_action. Assegnali nel campo tools dell'agente se il nodo ne ha bisogno.
-- I nodi "esecuzione" possono eseguire azioni sui connettori (Telegram, Slack, Gmail, webhook) tramite config: {"connector_id": "telegram", "connector_action": "send_message", "connector_params": {}}.
+- I nodi "esecuzione" possono eseguire azioni sui connettori (Telegram, Slack, Gmail, webhook, GitHub, Google Drive, ecc.) tramite config: {"connector_id": "id_connettore", "connector_action": "azione", "connector_params": {}}. Usa gli ID connettore dalla lista "Connettori configurati" nel contesto.
+- IMPORTANTE: quando l'utente chiede di inviare messaggi, email, notifiche o interagire con servizi esterni, usa SEMPRE i connettori configurati disponibili nel contesto — non inventare metodi alternativi.
 - I nodi "memoria" ora salvano dati nella memoria persistente e possono cercare memorie passate.
 - I nodi "automazione" eseguono comandi shell. I comandi pericolosi (rm -rf, sudo, ecc.) richiedono approvazione.
 - Provider aggiuntivi disponibili: deepseek, openrouter, groq, together, mistral, lmstudio (se configurati).
@@ -320,7 +343,7 @@ function resolvePlannerAgent(node: PlannerNode, agents: any[]) {
 }
 
 function normalizeWorkflowPlan(plan: WorkflowPlan | null, providerId: string, modelId: string, availableAgents: any[]) {
-  if (!plan || plan.mode !== 'build_project') return null;
+  if (!plan || (plan.mode !== 'build_project' && plan.mode !== 'build_app')) return null;
 
   const plannerNodes = Array.isArray(plan.graph?.nodes) ? plan.graph?.nodes || [] : [];
   if (plannerNodes.length === 0) return null;
@@ -344,8 +367,25 @@ function normalizeWorkflowPlan(plan: WorkflowPlan | null, providerId: string, mo
           allowOverrideExplicit: true,
         })
       : null;
-    const column = index % 3;
-    const row = Math.floor(index / 3);
+    const nodeConfig = typeof node.config === 'object' && node.config !== null ? node.config : {};
+    const phase = typeof nodeConfig.phase === 'number' ? nodeConfig.phase : -1;
+
+    // Phase-based layout for project builds, grid layout for workflows
+    let posX: number, posY: number;
+    if (phase >= 0) {
+      // Count nodes in same phase (before this one)
+      const samePhaseIndex = plannerNodes.slice(0, index).filter(n => {
+        const c = typeof n.config === 'object' && n.config !== null ? n.config : {};
+        return (c as any).phase === phase;
+      }).length;
+      posX = phase * 450;
+      posY = samePhaseIndex * 200;
+    } else {
+      const column = index % 3;
+      const row = Math.floor(index / 3);
+      posX = column * 420;
+      posY = row * 280;
+    }
 
     return {
       id,
@@ -354,9 +394,9 @@ function normalizeWorkflowPlan(plan: WorkflowPlan | null, providerId: string, mo
       description: String(node.description || node.label || '').trim(),
       state: 'pronto',
       color: String(node.color || NODE_COLORS[type] || ''),
-      config: typeof node.config === 'object' && node.config !== null ? node.config : {},
-      position_x: Number.isFinite(node.position_x) ? Number(node.position_x) : column * 420,
-      position_y: Number.isFinite(node.position_y) ? Number(node.position_y) : row * 280,
+      config: nodeConfig,
+      position_x: Number.isFinite(node.position_x) ? Number(node.position_x) : posX,
+      position_y: Number.isFinite(node.position_y) ? Number(node.position_y) : posY,
       width: Number.isFinite(node.width) ? Number(node.width) : 240,
       height: Number.isFinite(node.height) ? Number(node.height) : 90,
       agent_id: assignedAgent?.id || null,
@@ -406,6 +446,105 @@ function isBuildIntent(message: string) {
   return /crea|costruisc|imposta|configura|genera|completa|fammi|prepara|sviluppa|progetto|workflow|nodi|mappa|pipeline|automaz/i.test(message.toLowerCase());
 }
 
+function isProjectBuildIntent(message: string) {
+  const lower = message.toLowerCase();
+  // Must have a "build software" intent, not just a workflow/automation
+  const buildKeywords = /build.*app|create.*application|develop.*software|make.*web.*app|costruiscimi.*app|crea.*applicazione|sviluppa.*software|realizza.*app|crea.*sistema|build.*project|create.*project|genera.*progetto.*software|crea.*cms|crea.*saas|crea.*piattaforma|build.*platform|crea.*sito|crea.*portale|costruisci.*software/i;
+  const projectTypeKeywords = /app|application|software|cms|saas|piattaforma|platform|sito|portale|webapp|web.*app|api|backend|frontend|dashboard|gestionale|ecommerce|e-commerce|booking|pms/i;
+  return buildKeywords.test(lower) || (isBuildIntent(message) && projectTypeKeywords.test(lower));
+}
+
+function makeAppBuilderPrompt(defaultProviderId: string, defaultModelId: string) {
+  const { config } = require('../../config');
+  const appsDir = config.appsDir;
+  return `Sei l'App Builder di Agent OS. Il tuo compito è creare APPLICAZIONI REALI E FUNZIONANTI con interfaccia grafica.
+
+NON crei mappe concettuali, workflow o diagrammi. Crei APP VERE con codice sorgente che l'utente apre nel browser e usa.
+
+Ogni app che crei DEVE:
+1. Avere una UI grafica HTML/CSS/JS funzionante
+2. Essere navigabile e interattiva
+3. Includere integrazione AI tramite Agent OS (ai-client.js)
+4. Vivere in ${appsDir}/{nome_app}/
+5. Funzionare sia dentro Agent OS che standalone nel browser
+
+Restituisci SEMPRE e SOLO JSON valido:
+{
+  "mode": "build_app",
+  "assistant_response": "Sto costruendo [nome app] con [tech stack]. L'app avra [funzionalita]...",
+  "project": { "name": "nome-app", "description": "descrizione", "status": "pronto" },
+  "graph": {
+    "replace": true,
+    "nodes": [...],
+    "edges": [...]
+  }
+}
+
+STRUTTURA NODI — Ogni nodo scrive FILE CONCRETI (max 3 file per nodo):
+
+GRUPPO 1 - SETUP (1 nodo tipo "automazione"):
+- key: "setup"
+- Usa tool init_project per creare la cartella in ${appsDir}/{nome}/
+- config: { "phase": 0, "tools": ["init_project", "write_file"] }
+- system_prompt: "Crea il progetto con init_project al path ${appsDir}/{nome}/ di tipo react. Poi crea i file di configurazione: vite.config.js, tailwind.config.js (se serve), .env"
+
+GRUPPO 2 - BACKEND/DATI (2-4 nodi tipo "esecuzione"):
+- Ogni nodo crea 1-3 file specifici con write_file
+- config: { "phase": 1, "tools": ["write_file", "read_file"] }
+- Esempio system_prompt: "Crea il file ${appsDir}/{nome}/server/db.js con lo schema SQLite per le tabelle: bookings (id, guest, room, checkin, checkout, status, created_at), rooms (id, name, type, price). Usa better-sqlite3. Esporta le funzioni CRUD. Poi crea server/index.js con Express su porta 3001 con le routes REST per bookings e rooms."
+
+GRUPPO 3 - PAGINE UI (3-6 nodi tipo "esecuzione"):
+- OGNI nodo crea 1-2 componenti/pagine
+- config: { "phase": 2, "tools": ["write_file"] }
+- I system_prompt devono descrivere ESATTAMENTE il layout HTML, i componenti, gli stili
+- Esempio: "Crea ${appsDir}/{nome}/src/pages/Dashboard.jsx — pagina dashboard con: header con titolo e logo, griglia di card statistiche (prenotazioni oggi, occupazione, revenue), tabella prenotazioni recenti con status colorati, bottone 'Nuova Prenotazione'. Usa Tailwind per lo stile. I dati vengono da fetch('/api/bookings')."
+- IMPORTANTE: Scrivi CODICE COMPLETO, non placeholder. Ogni componente deve essere funzionante.
+
+GRUPPO 4 - AI INTEGRATION (1 nodo tipo "esecuzione"):
+- Crea src/lib/ai-client.js (client per usare AI di Agent OS)
+- Crea componenti AI: es. ChatWidget, AIAssistant, GenerateButton
+- config: { "phase": 3, "tools": ["write_file"] }
+- system_prompt: "Crea ${appsDir}/{nome}/src/lib/ai-client.js che connette a http://localhost:43101/api/v1/ai/assist per usare i modelli AI. Esporta: chat(prompt), generateText(prompt), analyzeData(data, question). Poi crea un componente ChatWidget.jsx con input testo, bottone invia, area messaggi."
+
+GRUPPO 5 - INSTALL & AVVIO (1 nodo tipo "automazione"):
+- config: { "phase": 4, "tools": ["install_deps", "run_dev_server", "git_init"] }
+- system_prompt: "Installa le dipendenze con install_deps al path ${appsDir}/{nome}/. Poi avvia il dev server con run_dev_server. Infine inizializza git con git_init."
+
+REGOLE CRITICHE:
+- Genera da 8 a 20 nodi (non di piu, non di meno)
+- Ogni nodo DEVE avere "tools" nel config con i tool specifici che usa
+- Ogni system_prompt deve contenere i PATH COMPLETI dei file da creare (${appsDir}/{nome}/...)
+- NON usare path generici — specifica sempre il path assoluto
+- Il codice nei file deve essere COMPLETO e FUNZIONANTE, non placeholder
+- Gli edge collegano i nodi in sequenza: setup → backend → ui → ai → install
+- Dentro lo stesso gruppo, i nodi possono essere paralleli
+
+SELF-CORRECTION — REGOLA FONDAMENTALE:
+Ogni nodo di tipo "esecuzione" che crea file UI/HTML DEVE includere nel system_prompt:
+"Dopo aver creato i file, usa read_file per rileggere il codice creato. Verifica che:
+1. Non ci siano errori di sintassi
+2. Gli import siano corretti
+3. I componenti siano completi (non placeholder)
+4. Le API calls puntino agli endpoint giusti
+Se trovi errori, usa write_file per correggerli immediatamente."
+
+TECH STACK CONSIGLIATI:
+- App semplice: HTML + CSS + vanilla JS (no build step, si avvia con npx serve)
+- App media: React + Vite + Tailwind (npm run dev)
+- App con dati: React + Express + better-sqlite3
+- App complessa: Next.js + Prisma + Tailwind
+
+Se non specificato, usa: React + Vite + Tailwind (il piu bilanciato).
+
+MODELLI AI:
+- Codice backend/API → anthropic o openai
+- Codice frontend/UI → anthropic o openai
+- Setup/Install → nodo automazione (non serve AI)
+Se fallback: provider "${defaultProviderId}", model "${defaultModelId}"
+
+Tools: write_file, read_file, shell_exec, init_project, install_deps, run_dev_server, stop_dev_server, run_tests, git_init, list_project_files, http_request, web_search, memory_save`;
+}
+
 function buildPlannerCandidates(selectedProviderId: string, selectedModelId: string): PlannerCandidate[] {
   const candidates: PlannerCandidate[] = [];
   const push = (providerId: string, modelId: string) => {
@@ -434,6 +573,7 @@ async function tryBuildWorkflowPlan(
   defaultProviderId: string,
   defaultModelId: string,
   availableAgents: any[],
+  maxTokens: number = 4096,
 ) {
   const candidates = buildPlannerCandidates(defaultProviderId, defaultModelId);
   let lastUsage: any = undefined;
@@ -445,7 +585,7 @@ async function tryBuildWorkflowPlan(
         candidate.providerId,
         planningMessages,
         candidate.modelId,
-        { temperature: 0.2, max_tokens: 4096 },
+        { temperature: 0.2, max_tokens: maxTokens },
       );
       lastUsage = planned.usage;
       const parsedPlan = extractJsonObject(planned.content) as WorkflowPlan | null;
@@ -502,7 +642,13 @@ export async function sendChatMessage(projectId: string, userMessage: string, pr
   const memoryContext = buildMemoryContext(projectId, userMessage, 5);
 
   try {
-    const plannerSystemPrompt = makePlannerSystemPrompt(providerId, modelId);
+    // Choose planner mode: App Builder (real apps) vs Project Architect vs standard workflow
+    const isAppBuild = isProjectBuildIntent(userMessage);
+    const plannerSystemPrompt = isAppBuild
+      ? makeAppBuilderPrompt(providerId, modelId)
+      : makePlannerSystemPrompt(providerId, modelId);
+    const maxTokens = isAppBuild ? 16384 : 4096;
+
     const enrichedPlannerPrompt = [
       soulPrompt ? `[Personalità]\n${soulPrompt}\n` : '',
       plannerSystemPrompt,
@@ -514,7 +660,7 @@ export async function sendChatMessage(projectId: string, userMessage: string, pr
       { role: 'user', content: `${makeProjectContext(project, nodes, agents)}\n\nGenera l'output JSON per la conversazione seguente.` },
       ...history,
     ];
-    const planningResult = await tryBuildWorkflowPlan(planningMessages, providerId, modelId, agents);
+    const planningResult = await tryBuildWorkflowPlan(planningMessages, providerId, modelId, agents, maxTokens);
     const normalizedPlan = planningResult.normalizedPlan;
 
     if (!normalizedPlan) {

@@ -1,4 +1,4 @@
-import { ProviderAdapter } from '../providers.types';
+import { ProviderAdapter, ChatOptions } from '../providers.types';
 import { config } from '../../../config';
 
 export class OpenAIAdapter implements ProviderAdapter {
@@ -9,19 +9,26 @@ export class OpenAIAdapter implements ProviderAdapter {
   private get apiKey() { return config.openaiApiKey; }
   private baseUrl = 'https://api.openai.com/v1';
 
-  async chat(messages: { role: string; content: string }[], model: string, options?: { temperature?: number; max_tokens?: number }) {
+  async chat(messages: { role: string; content: string }[], model: string, options?: ChatOptions) {
+    const body: any = {
+      model: model || 'gpt-4o',
+      messages,
+      temperature: options?.temperature ?? 0.7,
+      max_tokens: options?.max_tokens,
+    };
+    if (options?.top_p !== undefined) body.top_p = options.top_p;
+    if (options?.frequency_penalty !== undefined) body.frequency_penalty = options.frequency_penalty;
+    if (options?.presence_penalty !== undefined) body.presence_penalty = options.presence_penalty;
+    if (options?.stop_sequences?.length) body.stop = options.stop_sequences;
+    if (options?.response_format === 'json_object') body.response_format = { type: 'json_object' };
+
     const res = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` },
-      body: JSON.stringify({
-        model: model || 'gpt-4o',
-        messages,
-        temperature: options?.temperature ?? 0.7,
-        max_tokens: options?.max_tokens,
-      }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) throw new Error(`OpenAI error: ${res.status} ${await res.text()}`);
-    const data = await res.json();
+    const data: any = await res.json();
     return {
       content: data.choices[0]?.message?.content || '',
       usage: { prompt_tokens: data.usage?.prompt_tokens || 0, completion_tokens: data.usage?.completion_tokens || 0 },
@@ -38,7 +45,7 @@ export class OpenAIAdapter implements ProviderAdapter {
       const res = await fetch(`${this.baseUrl}/models`, {
         headers: { 'Authorization': `Bearer ${this.apiKey}` },
       });
-      const data = await res.json();
+      const data: any = await res.json();
       return (data.data || [])
         .filter((m: any) => m.id.startsWith('gpt'))
         .map((m: any) => ({ id: m.id, name: m.id }))

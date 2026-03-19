@@ -3,6 +3,11 @@ import * as service from './agents.service';
 
 const router = Router();
 
+// All agents (for FLOW)
+router.get('/agents/all', (_req, res) => {
+  res.json(service.getAllAgents());
+});
+
 router.get('/projects/:id/agents', (req, res) => {
   res.json(service.getAgentsByProject(req.params.id));
 });

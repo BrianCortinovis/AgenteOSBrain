@@ -175,7 +175,7 @@ export default function Header() {
   }, [currentProjectId, shouldListen, loadGraph, loadProjects, updateNode, clearCompletionTimer]);
 
   const viewLabels: Record<string, string> = {
-    mappa: 'Mappa Concettuale',
+    work: 'WORK — Flussi di Lavoro',
     agenti: 'Gestione Agenti',
     automazioni: 'Automazioni',
     timeline: 'Timeline',
@@ -319,7 +319,7 @@ export default function Header() {
             }}>
               {projects.map(p => (
                 <button key={p.id} onClick={() => {
-                  setCurrentProject(p.id); loadGraph(p.id); loadHistory(p.id); setView('mappa');
+                  setCurrentProject(p.id); loadGraph(p.id); loadHistory(p.id); setView('work');
                   setShowProjectMenu(false);
                 }} style={{
                   width: '100%', display: 'flex', alignItems: 'center', gap: 8,
@@ -349,7 +349,7 @@ export default function Header() {
                     onKeyDown={async e => { if (e.key === 'Enter' && newProjectName.trim()) {
                       const p = await createProject({ name: newProjectName.trim() });
                       setNewProjectName(''); setShowNewProject(false); setShowProjectMenu(false);
-                      loadGraph(p.id); loadHistory(p.id); setView('mappa');
+                      loadGraph(p.id); loadHistory(p.id); setView('work');
                     }}}
                     placeholder="Nome progetto..." autoFocus
                     style={{ flex: 1, fontSize: 11, padding: '4px 8px' }} />
@@ -357,7 +357,7 @@ export default function Header() {
                     onClick={async () => { if (!newProjectName.trim()) return;
                       const p = await createProject({ name: newProjectName.trim() });
                       setNewProjectName(''); setShowNewProject(false); setShowProjectMenu(false);
-                      loadGraph(p.id); loadHistory(p.id); setView('mappa');
+                      loadGraph(p.id); loadHistory(p.id); setView('work');
                     }}>+</button>
                 </div>
               ) : (

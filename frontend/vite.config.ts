@@ -13,6 +13,10 @@ export default defineConfig({
         target: `http://localhost:${backendPort}`,
         changeOrigin: true,
       },
+      '/ws': {
+        target: `http://localhost:${backendPort}`,
+        ws: true,
+      },
     },
   },
 });

@@ -144,6 +144,11 @@ export interface ChatRequest {
   model: string;
   temperature?: number;
   max_tokens?: number;
+  top_p?: number;
+  frequency_penalty?: number;
+  presence_penalty?: number;
+  stop_sequences?: string[];
+  response_format?: 'text' | 'json_object';
   stream?: boolean;
 }
 

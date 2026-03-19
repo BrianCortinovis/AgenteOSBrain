@@ -62,6 +62,14 @@ function extractJsonObject(content: string): any | null {
   return null;
 }
 
+export function getAllAgents() {
+  return db.prepare(
+    `SELECT DISTINCT a.*, p.name as project_name FROM agents a
+     LEFT JOIN projects p ON a.project_id = p.id
+     ORDER BY a.created_at DESC`
+  ).all();
+}
+
 export function getAgentsByProject(projectId: string) {
   return db.prepare(
     `SELECT * FROM agents

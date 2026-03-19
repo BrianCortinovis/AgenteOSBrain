@@ -1,4 +1,4 @@
-import { ProviderAdapter } from '../providers.types';
+import { ProviderAdapter, ChatOptions } from '../providers.types';
 import { config } from '../../../config';
 import fs from 'fs';
 import path from 'path';
@@ -11,7 +11,7 @@ export class GeminiAdapter implements ProviderAdapter {
   private get apiKey() { return config.geminiApiKey; }
   private baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
 
-  async chat(messages: { role: string; content: string }[], model: string, options?: { temperature?: number; max_tokens?: number }) {
+  async chat(messages: { role: string; content: string }[], model: string, options?: ChatOptions) {
     const modelId = model || 'gemini-2.5-flash';
     const systemMsg = messages.find(m => m.role === 'system');
     const chatMessages = messages.filter(m => m.role !== 'system');
@@ -21,9 +21,14 @@ export class GeminiAdapter implements ProviderAdapter {
       parts: [{ text: m.content }],
     }));
 
+    const generationConfig: any = { temperature: options?.temperature ?? 0.7, maxOutputTokens: options?.max_tokens || 65536 };
+    if (options?.top_p !== undefined) generationConfig.topP = options.top_p;
+    if (options?.stop_sequences?.length) generationConfig.stopSequences = options.stop_sequences;
+    if (options?.response_format === 'json_object') generationConfig.responseMimeType = 'application/json';
+
     const body: any = {
       contents,
-      generationConfig: { temperature: options?.temperature ?? 0.7, maxOutputTokens: options?.max_tokens || 65536 },
+      generationConfig,
     };
     if (systemMsg) {
       body.systemInstruction = { parts: [{ text: systemMsg.content }] };
@@ -34,7 +39,7 @@ export class GeminiAdapter implements ProviderAdapter {
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
     );
     if (!res.ok) throw new Error(`Gemini error: ${res.status} ${await res.text()}`);
-    const data = await res.json();
+    const data: any = await res.json();
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     return {
       content: text,
@@ -98,7 +103,7 @@ export class GeminiAdapter implements ProviderAdapter {
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
     );
     if (!res.ok) throw new Error(`Gemini Vision error: ${res.status} ${await res.text()}`);
-    const result = await res.json();
+    const result: any = await res.json();
     return result.candidates?.[0]?.content?.parts?.[0]?.text || '';
   }
 

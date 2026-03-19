@@ -1,4 +1,4 @@
-import { ProviderAdapter } from './providers.types';
+import { ProviderAdapter, ChatOptions } from './providers.types';
 import { OpenAIAdapter } from './adapters/openai.adapter';
 import { AnthropicAdapter } from './adapters/anthropic.adapter';
 import { GeminiAdapter } from './adapters/gemini.adapter';
@@ -40,7 +40,7 @@ class ProviderRegistry {
     providerId: string,
     messages: { role: string; content: string }[],
     model: string,
-    options?: { temperature?: number; max_tokens?: number },
+    options?: ChatOptions,
     fallbackProviderId?: string,
     fallbackModelId?: string,
   ) {

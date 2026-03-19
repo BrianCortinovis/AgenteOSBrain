@@ -15,19 +15,31 @@ import NodeInspector from './components/graph/panels/NodeInspector';
 import TimelineView from './components/timeline/TimelineView';
 import WorkspaceSettings from './components/workspace/WorkspaceSettings';
 import DashboardPanel from './components/workspace/DashboardPanel';
+import ProjectBuilder from './components/builder/ProjectBuilder';
+import IAOSDesktop from './components/iaos/IAOSDesktop';
+import PopupWindow from './components/iaos/PopupWindow';
 
 function App() {
+  // Multi-monitor popup mode — renders just the requested component
+  if (new URLSearchParams(window.location.search).get('popup') === '1') {
+    return <PopupWindow />;
+  }
   const loadProjects = useProjectStore(s => s.loadProjects);
   const currentProjectId = useProjectStore(s => s.currentProjectId);
   const currentView = useUIStore(s => s.currentView);
-  const sidebarOpen = useUIStore(s => s.sidebarOpen);
   const chatOpen = useUIStore(s => s.chatOpen);
   const inspectorOpen = useUIStore(s => s.inspectorOpen);
+  const iaosMode = useUIStore(s => s.iaosMode);
 
   useEffect(() => { loadProjects(); }, []);
 
+  // IAOS mode — full screen AI OS desktop
+  if (iaosMode) {
+    return <IAOSDesktop />;
+  }
+
   const renderMainContent = () => {
-    if (!currentProjectId && currentView !== 'prompt' && currentView !== 'connettori' && currentView !== 'impostazioni' && currentView !== 'workspace' && currentView !== 'dashboard') {
+    if (!currentProjectId && currentView !== 'prompt' && currentView !== 'connettori' && currentView !== 'impostazioni' && currentView !== 'workspace' && currentView !== 'dashboard' && currentView !== 'builder') {
       return (
         <div className="empty-state" style={{ height: '100%' }}>
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -40,7 +52,7 @@ function App() {
     }
 
     switch (currentView) {
-      case 'mappa': return <GraphCanvas />;
+      case 'work': return <GraphCanvas />;
       case 'agenti': return <AgentPanel />;
       case 'automazioni': return <SchedulePanel />;
       case 'timeline': return <TimelineView />;
@@ -50,6 +62,7 @@ function App() {
       case 'impostazioni': return <ProviderSettings />;
       case 'workspace': return <WorkspaceSettings />;
       case 'dashboard': return <DashboardPanel />;
+      case 'builder': return <ProjectBuilder />;
       default: return <GraphCanvas />;
     }
   };
@@ -58,7 +71,6 @@ function App() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw' }}>
-      {/* macOS titlebar drag region for traffic lights */}
       {isElectron && (
         <div style={{
           height: 28, background: 'var(--bg-secondary)',
@@ -80,7 +92,7 @@ function App() {
           <div style={{ flex: 1, overflow: 'auto', minWidth: 0 }}>
             {renderMainContent()}
           </div>
-          {inspectorOpen && currentView === 'mappa' && currentProjectId && (
+          {inspectorOpen && currentView === 'work' && currentProjectId && (
             <NodeInspector />
           )}
           {chatOpen && currentProjectId && (

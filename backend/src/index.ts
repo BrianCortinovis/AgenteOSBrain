@@ -18,6 +18,10 @@ import workspaceRouter from './modules/workspace/workspace.router';
 import memoryRouter from './modules/memory/memory.router';
 import toolsRouter from './modules/tools/tools.router';
 import skillsRouter from './modules/skills/skills.router';
+import appsRouter from './modules/apps/apps.router';
+import flowFsRouter from './modules/flow/flow-fs.router';
+import { initFlowFS } from './modules/flow/flow-fs.service';
+import browserRouter from './modules/browser/browser.router';
 import { orchestrate, executeAgentsParallel } from './modules/agents/orchestration.service';
 import { executeProject, executeNode, getExecutionState, pauseProject, resumeProject, stopProject, htmlToVideo } from './orchestrator/engine';
 import { initSchedulerRuntime, stopAllScheduleJobs } from './modules/scheduler/scheduler.runtime';
@@ -28,6 +32,7 @@ import { providerRegistry } from './modules/providers/provider-registry';
 import db from './database/connection';
 
 runMigrations();
+initFlowFS();
 
 // Load custom providers from DB after migrations
 providerRegistry.loadCustomProviders();
@@ -51,6 +56,9 @@ app.use('/api/v1/workspace', workspaceRouter);
 app.use('/api/v1/memory', memoryRouter);
 app.use('/api/v1/tools', toolsRouter);
 app.use('/api/v1/skills', skillsRouter);
+app.use('/api/v1/apps', appsRouter);
+app.use('/api/v1/flow', flowFsRouter);
+app.use('/api/v1/browser', browserRouter);
 
 // ─── SSE: real-time execution events ────────────────────────────
 import { EventEmitter } from 'events';

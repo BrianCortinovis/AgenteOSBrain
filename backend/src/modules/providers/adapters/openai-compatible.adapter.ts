@@ -1,4 +1,4 @@
-import { ProviderAdapter } from '../providers.types';
+import { ProviderAdapter, ChatOptions } from '../providers.types';
 
 /**
  * Universal OpenAI-compatible adapter.
@@ -38,7 +38,7 @@ export class OpenAICompatibleAdapter implements ProviderAdapter {
   async chat(
     messages: { role: string; content: string }[],
     model: string,
-    options?: { temperature?: number; max_tokens?: number },
+    options?: ChatOptions,
   ) {
     const actualModel = model || this.defaultModel;
     const headers: Record<string, string> = {
@@ -55,16 +55,23 @@ export class OpenAICompatibleAdapter implements ProviderAdapter {
       headers['X-Title'] = 'Agent OS Brain';
     }
 
+    const body: any = {
+      model: actualModel,
+      messages,
+      temperature: options?.temperature ?? 0.7,
+      max_tokens: options?.max_tokens,
+      stream: false,
+    };
+    if (options?.top_p !== undefined) body.top_p = options.top_p;
+    if (options?.frequency_penalty !== undefined) body.frequency_penalty = options.frequency_penalty;
+    if (options?.presence_penalty !== undefined) body.presence_penalty = options.presence_penalty;
+    if (options?.stop_sequences?.length) body.stop = options.stop_sequences;
+    if (options?.response_format === 'json_object') body.response_format = { type: 'json_object' };
+
     const res = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        model: actualModel,
-        messages,
-        temperature: options?.temperature ?? 0.7,
-        max_tokens: options?.max_tokens,
-        stream: false,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
