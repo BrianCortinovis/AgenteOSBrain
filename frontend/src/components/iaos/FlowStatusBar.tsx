@@ -65,7 +65,7 @@ export default function FlowStatusBar() {
   return (
     <div style={{
       height: 56,
-      background: 'var(--bg-secondary, rgba(10,12,20,0.9))',
+      background: 'var(--bg-secondary, rgba(22,22,22,0.95))',
       backdropFilter: 'blur(20px)',
       borderBottom: '1px solid var(--border-primary, rgba(255,255,255,0.06))',
       display: 'flex', alignItems: 'center',

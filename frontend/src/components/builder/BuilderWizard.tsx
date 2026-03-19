@@ -225,14 +225,9 @@ Il CSS deve essere dettagliato e professionale, non generico.`;
       setBuildStatus('Avvio build...');
       await api.post(`/projects/${project.id}/execute`, {});
 
-      setBuildStatus('Build completato!');
-
-      // Find the app name
-      const apps = await api.get<any[]>('/apps');
-      const newest = apps.sort((a: any, b: any) => b.name.localeCompare(a.name))[0];
-      if (newest) {
-        onComplete(newest.name);
-      }
+      setBuildStatus('Build completato! L\'app è disponibile nella sezione App.');
+      // Do NOT auto-open app in topbar — user opens it from App gallery manually
+      onComplete('');
     } catch (err: any) {
       setBuildStatus(`Errore: ${err.message}`);
     } finally {

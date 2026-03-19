@@ -175,10 +175,29 @@ export default function FlowDesktop() {
   const [isRecording, setIsRecording] = useState(false);
   const [pendingFile, setPendingFile] = useState<{ name: string; content: string } | null>(null);
   const [history, setHistory] = useState<{ role: string; content: string }[]>([]);
+  const [chatLogVisible, setChatLogVisible] = useState(true);
+  const [chatBtnPos, setChatBtnPos] = useState({ x: window.innerWidth - 70, y: window.innerHeight - 180 });
+  const chatBtnDragRef = useRef<{ startX: number; startY: number; bx: number; by: number } | null>(null);
   const logsEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<any>(null);
   const flowPendingFile = useUIStore(s => s.flowPendingFile);
+
+  // Draggable chat toggle button handlers
+  const onChatBtnMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    chatBtnDragRef.current = { startX: e.clientX, startY: e.clientY, bx: chatBtnPos.x, by: chatBtnPos.y };
+    const onMove = (ev: MouseEvent) => {
+      if (!chatBtnDragRef.current) return;
+      setChatBtnPos({
+        x: chatBtnDragRef.current.bx + ev.clientX - chatBtnDragRef.current.startX,
+        y: chatBtnDragRef.current.by + ev.clientY - chatBtnDragRef.current.startY,
+      });
+    };
+    const onUp = () => { chatBtnDragRef.current = null; window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
 
   useEffect(() => { logsEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [logs]);
 
@@ -275,7 +294,7 @@ export default function FlowDesktop() {
   }, [isRecording]);
 
   return (
-    <div className="flow-desktop" style={{ background: 'var(--bg-primary, #0f1219)' }}>
+    <div className="flow-desktop" style={{ background: 'var(--bg-primary, #111111)' }}>
       {/* Grid pattern */}
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.02) 1px, transparent 0)', backgroundSize: '40px 40px', pointerEvents: 'none' }} />
 
@@ -355,13 +374,36 @@ export default function FlowDesktop() {
         );
       })()}
 
+      {/* ══════ CHAT TOGGLE BUTTON — draggable overlay ══════ */}
+      <div
+        onMouseDown={onChatBtnMouseDown}
+        onClick={() => setChatLogVisible(v => !v)}
+        style={{
+          position: 'absolute',
+          left: chatBtnPos.x, top: chatBtnPos.y,
+          width: 44, height: 44, borderRadius: '50%',
+          background: chatLogVisible ? 'rgba(99,179,237,0.18)' : 'rgba(255,255,255,0.07)',
+          border: chatLogVisible ? '1px solid rgba(99,179,237,0.4)' : '1px solid rgba(255,255,255,0.12)',
+          backdropFilter: 'blur(12px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'grab', zIndex: 45, userSelect: 'none',
+          transition: 'background 0.2s, border 0.2s',
+          boxShadow: chatLogVisible ? '0 0 18px rgba(99,179,237,0.2)' : '0 2px 12px rgba(0,0,0,0.3)',
+        }}
+        title={chatLogVisible ? 'Nascondi risposte AI' : 'Mostra risposte AI'}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={chatLogVisible ? 'rgba(99,179,237,0.9)' : 'rgba(200,210,220,0.5)'} strokeWidth="1.8">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+      </div>
+
       {/* ══════ LOG BOX — risposte spostabile ══════ */}
-      {logs.length > 0 && (
+      {logs.length > 0 && chatLogVisible && (
         <div style={{
           position: 'absolute',
           top: 44, right: 16, bottom: 110,
           width: 380,
-          background: 'rgba(12,14,22,0.75)',
+          background: 'rgba(28,28,30,0.92)',
           backdropFilter: 'blur(16px)',
           borderRadius: 14,
           border: '1px solid rgba(255,255,255,0.06)',
@@ -413,7 +455,7 @@ export default function FlowDesktop() {
         )}
         <div style={{
           display: 'flex', alignItems: 'center', gap: 8,
-          background: 'var(--bg-secondary, rgba(22,25,35,0.9))',
+          background: 'var(--bg-secondary, rgba(24,24,24,0.95))',
           backdropFilter: 'blur(20px)',
           borderRadius: 14,
           border: '1px solid var(--border-primary, rgba(255,255,255,0.08))',

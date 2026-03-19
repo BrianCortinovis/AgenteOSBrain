@@ -1,6 +1,46 @@
 import { useRef, useCallback, useState } from 'react';
 import { useUIStore, FlowWindow as WinType } from '../../stores/useUIStore';
 
+// ─── macOS-style traffic lights ──────────────────────────────────────────────
+function TrafficLights({ onClose, onMinimize, onMaximize, onPopOut, maximized }: {
+  onClose: (e: React.MouseEvent) => void;
+  onMinimize: (e: React.MouseEvent) => void;
+  onMaximize: (e: React.MouseEvent) => void;
+  onPopOut: (e: React.MouseEvent) => void;
+  maximized: boolean;
+}) {
+  const [hover, setHover] = useState(false);
+  const btn = (color: string, label: string, icon: string, onClick: (e: React.MouseEvent) => void) => (
+    <button
+      onClick={onClick}
+      title={label}
+      style={{
+        width: 13, height: 13, borderRadius: '50%', border: 'none', cursor: 'pointer',
+        background: color, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 8, fontWeight: 900, color: 'rgba(0,0,0,0.65)', lineHeight: 1,
+        transition: 'filter 0.15s',
+        boxShadow: `0 0 0 0.5px rgba(0,0,0,0.25) inset`,
+      }}
+      onMouseEnter={e => (e.currentTarget.style.filter = 'brightness(0.85)')}
+      onMouseLeave={e => (e.currentTarget.style.filter = 'brightness(1)')}
+    >
+      <span style={{ opacity: hover ? 1 : 0, transition: 'opacity 0.1s', userSelect: 'none' }}>{icon}</span>
+    </button>
+  );
+  return (
+    <div
+      style={{ display: 'flex', gap: 6, marginRight: 10, alignItems: 'center' }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {btn('#ff5f57', 'Chiudi', '✕', onClose)}
+      {btn('#febc2e', 'Riduci', '−', onMinimize)}
+      {btn('#28c840', maximized ? 'Ripristina' : 'Ingrandisci', maximized ? '⊖' : '⊕', onMaximize)}
+      {btn('rgba(139,92,246,0.85)', 'Apri in finestra separata', '↗', onPopOut)}
+    </div>
+  );
+}
+
 type Props = {
   win: WinType;
   children: React.ReactNode;
@@ -104,41 +144,20 @@ export default function FlowWindow({ win, children }: Props) {
           cursor: maximized ? 'default' : 'grab',
           userSelect: 'none',
           flexShrink: 0,
-          background: `rgba(15, 17, 25, ${Math.min(windowOpacity, 0.85)})`,
+          background: `rgba(28, 28, 30, ${Math.min(windowOpacity, 0.92)})`,
           backdropFilter: 'blur(16px)',
           borderRadius: '8px 8px 0 0',
           borderBottom: '1px solid rgba(255,255,255,0.04)',
         }}
       >
-        {/* Traffic lights */}
-        <div style={{ display: 'flex', gap: 6, marginRight: 10, alignItems: 'center' }}>
-          <button
-            onClick={(e) => { e.stopPropagation(); closeWindow(win.id); }}
-            style={{ width: 12, height: 12, borderRadius: '50%', background: '#ef4444', border: 'none', cursor: 'pointer', opacity: 0.85 }}
-            title="Chiudi"
-          />
-          <button
-            onClick={(e) => { e.stopPropagation(); minimizeWindow(win.id); }}
-            style={{ width: 12, height: 12, borderRadius: '50%', background: '#f59e0b', border: 'none', cursor: 'pointer', opacity: 0.85 }}
-            title="Riduci"
-          />
-          <button
-            onClick={(e) => { e.stopPropagation(); handleMaximize(); }}
-            style={{ width: 12, height: 12, borderRadius: '50%', background: '#10b981', border: 'none', cursor: 'pointer', opacity: 0.85 }}
-            title={maximized ? 'Ripristina' : 'Ingrandisci'}
-          />
-          {/* Pop-out to separate window (multi-monitor) */}
-          <button
-            onClick={handlePopOut}
-            style={{
-              width: 12, height: 12, borderRadius: '50%',
-              background: 'rgba(139,92,246,0.8)', border: 'none', cursor: 'pointer', opacity: 0.85,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 7, color: 'white',
-              marginLeft: 2,
-            }}
-            title="Apri in finestra separata (secondo monitor)"
-          >↗</button>
-        </div>
+        {/* Traffic lights — macOS style */}
+        <TrafficLights
+          onClose={(e) => { e.stopPropagation(); closeWindow(win.id); }}
+          onMinimize={(e) => { e.stopPropagation(); minimizeWindow(win.id); }}
+          onMaximize={(e) => { e.stopPropagation(); handleMaximize(); }}
+          onPopOut={handlePopOut}
+          maximized={maximized}
+        />
         <div style={{
           flex: 1, textAlign: 'center',
           fontSize: 11, fontWeight: 500,
@@ -154,7 +173,7 @@ export default function FlowWindow({ win, children }: Props) {
         flex: 1,
         overflow: 'auto',
         borderRadius: '0 0 8px 8px',
-        background: `rgba(15,18,25,${windowOpacity})`,
+        background: `rgba(32,32,34,${windowOpacity})`,
         backdropFilter: windowOpacity < 0.95 ? `blur(${Math.round((1 - windowOpacity) * 30)}px)` : 'none',
       }}>
         {children}

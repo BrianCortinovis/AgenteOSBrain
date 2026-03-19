@@ -1,7 +1,7 @@
 .flow-desktop {
   position: fixed;
   inset: 0;
-  background: var(--bg-primary, #0f1219);
+  background: var(--bg-primary, #111111);
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
   color: var(--text-primary, #e0e6f0);
@@ -10,7 +10,7 @@
 /* Status Bar */
 .flow-statusbar {
   height: 32px;
-  background: var(--bg-secondary, rgba(10, 12, 20, 0.85));
+  background: var(--bg-secondary, rgba(20, 20, 20, 0.85));
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-primary, rgba(255, 255, 255, 0.06));
   display: flex;
@@ -57,7 +57,7 @@
   display: flex;
   gap: 4px;
   padding: 8px 16px;
-  background: var(--bg-secondary, rgba(15, 18, 30, 0.8));
+  background: var(--bg-secondary, rgba(26, 26, 26, 0.8));
   backdrop-filter: blur(24px);
   border-radius: 18px;
   border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.08));
@@ -225,7 +225,7 @@
 .flow-window-body {
   flex: 1;
   overflow: hidden;
-  background: var(--bg-primary, #0f1219);
+  background: var(--bg-primary, #111111);
 }
 
 .flow-window.minimized {

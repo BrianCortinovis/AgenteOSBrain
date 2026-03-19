@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --bg-primary: #101214;
-  --bg-secondary: #161a1d;
-  --bg-tertiary: #1c2024;
-  --bg-card: #1e2226;
-  --bg-hover: #252a2e;
-  --bg-input: #121517;
+  --bg-primary: #111111;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #202020;
+  --bg-card: #242424;
+  --bg-hover: #2a2a2a;
+  --bg-input: #161616;
 
   --border-primary: #262b30;
   --border-secondary: #333a40;
